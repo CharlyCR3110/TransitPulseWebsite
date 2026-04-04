@@ -153,38 +153,35 @@ export default function HomePage() {
                 {favoriteArrivals.map((arr, idx) => {
                   const route = getRoute(arr.routeId);
                   if (!route) return null;
+                  const etaColor =
+                    arr.status === 'on-time'
+                      ? 'text-on-time'
+                      : arr.status === 'delayed'
+                        ? 'text-delayed'
+                        : 'text-disrupted';
                   return (
                     <li key={arr.id}>
                       {idx > 0 && <Separator />}
-                      <div className="flex items-start gap-3 px-4 py-3.5">
-                        <RouteChip route={route} size="sm" />
+                      <div className="flex items-center gap-3 px-4 py-3">
+                        <div className="w-20 shrink-0 flex justify-start">
+                          <RouteChip route={route} size="sm" />
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">
+                          <p className="text-sm font-medium truncate leading-tight">
                             {arr.destination}
                           </p>
-                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <p className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
                             <StatusBadge status={arr.status} />
-                            <span className="text-xs text-muted-foreground">
-                              {formatRelative(arr.updatedAt)}
-                            </span>
-                          </div>
+                            <OccupancyBadge level={arr.occupancy} showLabel={false} />
+                          </p>
                         </div>
-                        <div className="flex flex-col items-end gap-1 shrink-0">
-                          <span
-                            className={`text-sm font-mono font-bold ${
-                              arr.status === 'on-time'
-                                ? 'text-on-time'
-                                : arr.status === 'delayed'
-                                  ? 'text-delayed'
-                                  : 'text-disrupted'
-                            }`}
-                          >
+                        <div className="text-right shrink-0">
+                          <p className={`text-sm font-mono font-bold leading-tight ${etaColor}`}>
                             {formatETA(arr.predictedAt)}
-                          </span>
-                          <span className="text-xs text-muted-foreground font-mono">
+                          </p>
+                          <p className="text-xs text-muted-foreground font-mono mt-0.5">
                             {formatTime(arr.predictedAt)}
-                          </span>
-                          <OccupancyBadge level={arr.occupancy} showLabel={false} />
+                          </p>
                         </div>
                       </div>
                     </li>
