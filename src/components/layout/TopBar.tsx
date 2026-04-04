@@ -10,8 +10,7 @@ const titleMap: Record<string, string> = {
   '/plan': 'Planificar viaje',
   '/alerts': 'Alertas',
   '/routes': 'Rutas',
-  '/payments': 'Pagar',
-  '/payments/history': 'Historial de pagos',
+  '/payments': 'Membresía',
   '/report': 'Reportar incidente',
   '/account': 'Mi cuenta',
 };

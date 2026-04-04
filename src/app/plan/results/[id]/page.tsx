@@ -3,10 +3,8 @@ import Link from 'next/link';
 import {
   ArrowRight,
   Clock,
-  CreditCard,
   Info,
   Map,
-  Repeat2,
   ShieldCheck,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -183,18 +181,13 @@ export default async function TripDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* Pay CTA */}
-      <div className="pt-2 pb-4">
-        <Link
-          href="/payments"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground transition-colors hover:bg-primary/80 h-9 text-sm"
-        >
-          <CreditCard className="h-5 w-5" />
-          Pagar {formatFare(trip.totalFare)} por este viaje
-        </Link>
-        <p className="text-xs text-muted-foreground text-center mt-2">
-          Pago seguro · Recibo digital
-        </p>
+      {/* Fare info — read only */}
+      <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3 pb-4">
+        <p className="text-sm font-medium">Tarifa estimada</p>
+        <div className="text-right">
+          <p className="text-lg font-bold">{formatFare(trip.totalFare)}</p>
+          <p className="text-xs text-muted-foreground">Los precios son referenciales</p>
+        </div>
       </div>
     </div>
   );
