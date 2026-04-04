@@ -8,7 +8,7 @@ export const alerts: Alert[] = [
   {
     id: 'alert-1',
     title: 'Desvío en Av. Central por obras',
-    body: 'Las rutas 106 y 200 operan con desvío por Av. 4 debido a trabajos de mantenimiento en Av. Central. Se esperan demoras de 8–15 minutos.',
+    body: 'Las rutas 106 y 200 operan con desvío por Av. 4 debido a trabajos de mantenimiento en Av. Central. Se esperan demoras de 8-15 minutos.',
     severity: 'warning',
     affectedRouteIds: ['route-106', 'route-200'],
     affectedStopIds: ['stop-sjc', 'stop-sabana'],
@@ -51,7 +51,7 @@ export const alerts: Alert[] = [
   },
   {
     id: 'alert-5',
-    title: 'Mantenimiento programado línea Alajuela – domingo',
+    title: 'Mantenimiento programado línea Alajuela - domingo',
     body: 'El domingo de 6 am a 2 pm no habrá servicio INCOFER entre Heredia y Alajuela por mantenimiento de vía. Se habilita autobús sustituto.',
     severity: 'info',
     affectedRouteIds: ['route-train-pa'],

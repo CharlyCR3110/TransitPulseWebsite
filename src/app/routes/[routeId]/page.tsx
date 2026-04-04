@@ -18,9 +18,9 @@ interface Props {
 
 // Qualitative occupancy trend data (mocked)
 const occupancyTrend: { period: string; level: OccupancyLevel }[] = [
-  { period: 'Mañana (6–9h)', level: 'packed' },
-  { period: 'Mediodía (11–14h)', level: 'medium' },
-  { period: 'Tarde (16–19h)', level: 'high' },
+  { period: 'Mañana (6-9h)', level: 'packed' },
+  { period: 'Mediodía (11-14h)', level: 'medium' },
+  { period: 'Tarde (16-19h)', level: 'high' },
 ];
 
 export default async function RouteDetailPage({ params }: Props) {
@@ -45,7 +45,7 @@ export default async function RouteDetailPage({ params }: Props) {
             <ModePill mode={route.mode} size="sm" />
             <span className="text-sm text-muted-foreground">
               {formatFare(route.fareMin)}
-              {route.fareMax !== route.fareMin && ` – ${formatFare(route.fareMax)}`}
+              {route.fareMax !== route.fareMin && ` - ${formatFare(route.fareMax)}`}
             </span>
           </div>
         </div>

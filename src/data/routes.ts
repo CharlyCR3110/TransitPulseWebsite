@@ -4,7 +4,7 @@ export const routes: Route[] = [
   {
     id: 'route-106',
     shortName: '106',
-    longName: 'San José – Hatillo – Desamparados',
+    longName: 'San José - Hatillo - Desamparados',
     mode: 'bus',
     color: '#3b82f6',
     fareMin: 490,
@@ -13,7 +13,7 @@ export const routes: Route[] = [
   {
     id: 'route-200',
     shortName: '200',
-    longName: 'San José – Heredia – Pavas',
+    longName: 'San José - Heredia - Pavas',
     mode: 'bus',
     color: '#3b82f6',
     fareMin: 490,
@@ -22,7 +22,7 @@ export const routes: Route[] = [
   {
     id: 'route-310',
     shortName: '310',
-    longName: 'Hatillo – Desamparados – Aserrí',
+    longName: 'Hatillo - Desamparados - Aserrí',
     mode: 'bus',
     color: '#3b82f6',
     fareMin: 490,
@@ -31,7 +31,7 @@ export const routes: Route[] = [
   {
     id: 'route-410',
     shortName: '410',
-    longName: 'San José – Curridabat – Tres Ríos',
+    longName: 'San José - Curridabat - Tres Ríos',
     mode: 'bus',
     color: '#3b82f6',
     fareMin: 490,
@@ -40,7 +40,7 @@ export const routes: Route[] = [
   {
     id: 'route-501',
     shortName: '501',
-    longName: 'Sabana Norte – Pavas – Rohrmoser',
+    longName: 'Sabana Norte - Pavas - Rohrmoser',
     mode: 'bus',
     color: '#3b82f6',
     fareMin: 490,
@@ -49,7 +49,7 @@ export const routes: Route[] = [
   {
     id: 'route-602',
     shortName: '602',
-    longName: 'San José – Tibás – Moravia',
+    longName: 'San José - Tibás - Moravia',
     mode: 'bus',
     color: '#3b82f6',
     fareMin: 490,
@@ -58,7 +58,7 @@ export const routes: Route[] = [
   {
     id: 'route-train-pa',
     shortName: 'INCOFER PA',
-    longName: 'INCOFER — San José – Pavas – Alajuela',
+    longName: 'INCOFER — San José - Pavas - Alajuela',
     mode: 'train',
     color: '#7c3aed',
     fareMin: 700,
@@ -67,7 +67,7 @@ export const routes: Route[] = [
   {
     id: 'route-train-ca',
     shortName: 'INCOFER CA',
-    longName: 'INCOFER — San José – Curridabat – Cartago',
+    longName: 'INCOFER — San José - Curridabat - Cartago',
     mode: 'train',
     color: '#7c3aed',
     fareMin: 700,

@@ -37,7 +37,7 @@ export default function RoutesPage() {
                   <p className="text-sm font-medium truncate">{route.longName}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatFare(route.fareMin)}
-                    {route.fareMax !== route.fareMin && ` – ${formatFare(route.fareMax)}`}
+                    {route.fareMax !== route.fareMin && ` - ${formatFare(route.fareMax)}`}
                   </p>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -66,7 +66,7 @@ export default function RoutesPage() {
                   <p className="text-sm font-medium truncate">{route.longName}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatFare(route.fareMin)}
-                    {route.fareMax !== route.fareMin && ` – ${formatFare(route.fareMax)}`}
+                    {route.fareMax !== route.fareMin && ` - ${formatFare(route.fareMax)}`}
                   </p>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
