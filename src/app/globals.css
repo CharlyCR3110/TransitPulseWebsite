@@ -117,6 +117,75 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+:root {
+  /* Transport modes */
+  --color-bus: oklch(0.623 0.214 255.5);      /* blue-500 */
+  --color-bus-fg: oklch(1 0 0);
+  --color-train: oklch(0.558 0.228 293.9);    /* purple-600 */
+  --color-train-fg: oklch(1 0 0);
+  --color-walk: oklch(0.621 0 0);              /* gray-500 */
+  --color-walk-fg: oklch(1 0 0);
+
+  /* Arrival status */
+  --color-on-time: oklch(0.648 0.197 142.5);  /* green-500 */
+  --color-on-time-fg: oklch(1 0 0);
+  --color-delayed: oklch(0.769 0.188 70.1);   /* amber-500 */
+  --color-delayed-fg: oklch(0.1 0 0);
+  --color-disrupted: oklch(0.637 0.237 25.3); /* red-500 */
+  --color-disrupted-fg: oklch(1 0 0);
+  --color-unknown: oklch(0.556 0 0);           /* gray-500 */
+  --color-unknown-fg: oklch(1 0 0);
+
+  /* Occupancy levels */
+  --color-occ-low: oklch(0.723 0.178 149.6);  /* green-400 */
+  --color-occ-low-fg: oklch(0.1 0 0);
+  --color-occ-medium: oklch(0.852 0.199 91.9); /* yellow-400 */
+  --color-occ-medium-fg: oklch(0.1 0 0);
+  --color-occ-high: oklch(0.75 0.213 47.6);   /* orange-400 */
+  --color-occ-high-fg: oklch(0.1 0 0);
+  --color-occ-packed: oklch(0.637 0.237 25.3); /* red-500 */
+  --color-occ-packed-fg: oklch(1 0 0);
+
+  /* Alert severity */
+  --color-sev-info: oklch(0.623 0.214 255.5);     /* blue-500 */
+  --color-sev-info-fg: oklch(1 0 0);
+  --color-sev-warning: oklch(0.769 0.188 70.1);   /* amber-500 */
+  --color-sev-warning-fg: oklch(0.1 0 0);
+  --color-sev-critical: oklch(0.577 0.245 27.3);  /* red-600 */
+  --color-sev-critical-fg: oklch(1 0 0);
+}
+
+@theme inline {
+  --color-bus: var(--color-bus);
+  --color-bus-fg: var(--color-bus-fg);
+  --color-train: var(--color-train);
+  --color-train-fg: var(--color-train-fg);
+  --color-walk: var(--color-walk);
+  --color-walk-fg: var(--color-walk-fg);
+  --color-on-time: var(--color-on-time);
+  --color-on-time-fg: var(--color-on-time-fg);
+  --color-delayed: var(--color-delayed);
+  --color-delayed-fg: var(--color-delayed-fg);
+  --color-disrupted: var(--color-disrupted);
+  --color-disrupted-fg: var(--color-disrupted-fg);
+  --color-unknown: var(--color-unknown);
+  --color-unknown-fg: var(--color-unknown-fg);
+  --color-occ-low: var(--color-occ-low);
+  --color-occ-low-fg: var(--color-occ-low-fg);
+  --color-occ-medium: var(--color-occ-medium);
+  --color-occ-medium-fg: var(--color-occ-medium-fg);
+  --color-occ-high: var(--color-occ-high);
+  --color-occ-high-fg: var(--color-occ-high-fg);
+  --color-occ-packed: var(--color-occ-packed);
+  --color-occ-packed-fg: var(--color-occ-packed-fg);
+  --color-sev-info: var(--color-sev-info);
+  --color-sev-info-fg: var(--color-sev-info-fg);
+  --color-sev-warning: var(--color-sev-warning);
+  --color-sev-warning-fg: var(--color-sev-warning-fg);
+  --color-sev-critical: var(--color-sev-critical);
+  --color-sev-critical-fg: var(--color-sev-critical-fg);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
