@@ -18,7 +18,15 @@ export default function RoutesPage() {
         </p>
       </div>
 
+      {routes.length === 0 && (
+        <div className="rounded-xl border bg-card px-4 py-10 text-center">
+          <p className="text-sm font-medium mb-1">Sin rutas disponibles</p>
+          <p className="text-xs text-muted-foreground">No hay rutas cargadas en este momento.</p>
+        </div>
+      )}
+
       {/* Train routes */}
+      {trains.length > 0 && (
       <section>
         <div className="flex items-center gap-2 mb-3">
           <ModePill mode="train" size="sm" />
@@ -46,8 +54,10 @@ export default function RoutesPage() {
           ))}
         </div>
       </section>
+      )}
 
       {/* Bus routes */}
+      {buses.length > 0 && (
       <section>
         <div className="flex items-center gap-2 mb-3">
           <ModePill mode="bus" size="sm" />
@@ -75,6 +85,7 @@ export default function RoutesPage() {
           ))}
         </div>
       </section>
+      )}
     </div>
   );
 }

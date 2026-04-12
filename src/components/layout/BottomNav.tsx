@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Map, Navigation, Bell, User } from 'lucide-react';
+import { Home, Map, Navigation, Bell, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -10,7 +10,7 @@ const navItems = [
   { href: '/plan', label: 'Planear', icon: Navigation },
   { href: '/routes', label: 'Rutas', icon: Map },
   { href: '/alerts', label: 'Alertas', icon: Bell },
-  { href: '/account', label: 'Cuenta', icon: User },
+  { href: '/report', label: 'Reportar', icon: Flag },
 ] as const;
 
 export function BottomNav() {

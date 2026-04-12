@@ -11,10 +11,40 @@ export function PlannerForm() {
   const [destination, setDestination] = useState('');
   const [mode, setMode] = useState<'now' | 'schedule'>('now');
   const [searched, setSearched] = useState(false);
+  const [errors, setErrors] = useState<{ origin?: string; destination?: string }>({});
+  const [locating, setLocating] = useState(false);
+  const [locError, setLocError] = useState('');
+
+  const handleUseLocation = () => {
+    if (!navigator.geolocation) {
+      setLocError('Tu navegador no soporta geolocalización.');
+      return;
+    }
+    setLocating(true);
+    setLocError('');
+    navigator.geolocation.getCurrentPosition(
+      () => {
+        setOrigin('Mi ubicación');
+        setLocating(false);
+        setErrors((e) => ({ ...e, origin: undefined }));
+      },
+      () => {
+        setLocError('No se pudo obtener tu ubicación. Verifica los permisos.');
+        setLocating(false);
+      },
+    );
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!origin.trim() || !destination.trim()) return;
+    const newErrors: typeof errors = {};
+    if (!origin.trim()) newErrors.origin = 'Ingresa un origen.';
+    if (!destination.trim()) newErrors.destination = 'Ingresa un destino.';
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
     setSearched(true);
   };
 
@@ -22,36 +52,50 @@ export function PlannerForm() {
     <div className="space-y-5">
       <form onSubmit={handleSearch} className="space-y-3">
         {/* Origin */}
-        <div className="relative">
-          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={origin}
-            onChange={(e) => setOrigin(e.target.value)}
-            placeholder="Origen"
-            className="pl-9 pr-10"
-            required
-          />
-          <button
-            type="button"
-            onClick={() => setOrigin('Mi ubicación')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
-            aria-label="Usar mi ubicación"
-            title="Usar mi ubicación"
-          >
-            <LocateFixed className="h-4 w-4" />
-          </button>
+        <div>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={origin}
+              onChange={(e) => { setOrigin(e.target.value); setErrors((er) => ({ ...er, origin: undefined })); }}
+              placeholder="Origen"
+              className={`pl-9 pr-10 ${errors.origin ? 'border-disrupted focus-visible:ring-disrupted' : ''}`}
+              aria-invalid={!!errors.origin}
+            />
+            <button
+              type="button"
+              onClick={handleUseLocation}
+              disabled={locating}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors disabled:opacity-40"
+              aria-label="Usar mi ubicación"
+              title="Usar mi ubicación"
+            >
+              <LocateFixed className={`h-4 w-4 ${locating ? 'animate-pulse' : ''}`} />
+            </button>
+          </div>
+          {errors.origin && (
+            <p className="mt-1 text-xs text-disrupted">{errors.origin}</p>
+          )}
+          {locError && (
+            <p className="mt-1 text-xs text-disrupted">{locError}</p>
+          )}
         </div>
 
         {/* Destination */}
-        <div className="relative">
-          <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            placeholder="Destino"
-            className="pl-9"
-            required
-          />
+        <div>
+          <div className="relative">
+            <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={destination}
+              onChange={(e) => { setDestination(e.target.value); setErrors((er) => ({ ...er, destination: undefined })); }}
+              placeholder="Destino"
+              className={`pl-9 ${errors.destination ? 'border-disrupted focus-visible:ring-disrupted' : ''}`}
+              aria-invalid={!!errors.destination}
+            />
+          </div>
+          {errors.destination && (
+            <p className="mt-1 text-xs text-disrupted">{errors.destination}</p>
+          )}
         </div>
 
         {/* Departure toggle */}

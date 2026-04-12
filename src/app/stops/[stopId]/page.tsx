@@ -16,6 +16,7 @@ export default async function StopDetailPage({ params }: Props) {
   const { stopId } = await params;
   const stop = getStop(stopId);
   if (!stop) notFound();
+  const now = new Date();
 
   const arrivals = getArrivalsByStop(stopId);
   const servedRoutes = stop.routeIds
@@ -38,7 +39,7 @@ export default async function StopDetailPage({ params }: Props) {
         <p className="text-xs text-muted-foreground mt-0.5">Parada de tránsito</p>
       </div>
 
-      <StaleBanner updatedAt={oldestUpdate} />
+      <StaleBanner updatedAt={oldestUpdate} initialNow={now} />
 
       {/* Served routes */}
       {servedRoutes.length > 0 && (

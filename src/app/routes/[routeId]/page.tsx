@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import { Clock } from 'lucide-react';
 import { ModePill } from '@/components/transit/ModePill';
 import { StatusBadge } from '@/components/transit/StatusBadge';
-import { OccupancyBadge } from '@/components/transit/OccupancyBadge';
 import { RouteChip } from '@/components/transit/RouteChip';
 import { getRoute } from '@/data/routes';
 import { stops } from '@/data/stops';
@@ -10,18 +9,9 @@ import { getArrivalsByRoute } from '@/data/arrivals';
 import { getAlertsByRoute } from '@/data/alerts';
 import { formatFare, formatTime } from '@/lib/format';
 import Link from 'next/link';
-import type { OccupancyLevel } from '@/types/transit';
-
 interface Props {
   params: Promise<{ routeId: string }>;
 }
-
-// Qualitative occupancy trend data (mocked)
-const occupancyTrend: { period: string; level: OccupancyLevel }[] = [
-  { period: 'Mañana (6-9h)', level: 'packed' },
-  { period: 'Mediodía (11-14h)', level: 'medium' },
-  { period: 'Tarde (16-19h)', level: 'high' },
-];
 
 export default async function RouteDetailPage({ params }: Props) {
   const { routeId } = await params;
@@ -104,22 +94,6 @@ export default async function RouteDetailPage({ params }: Props) {
           </div>
         </section>
       )}
-
-      {/* Occupancy trend */}
-      <section>
-        <h3 className="font-semibold text-base mb-3">Ocupación habitual</h3>
-        <div className="grid grid-cols-3 gap-2">
-          {occupancyTrend.map(({ period, level }) => (
-            <div
-              key={period}
-              className="rounded-lg border bg-card p-3 text-center"
-            >
-              <p className="text-xs text-muted-foreground mb-2 leading-tight">{period}</p>
-              <OccupancyBadge level={level} showLabel className="justify-center" />
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Stops served */}
       {servedStops.length > 0 && (

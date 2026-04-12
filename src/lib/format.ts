@@ -46,8 +46,13 @@ export function formatFare(colones: number): string {
 /**
  * Format a past date as "updated X sec ago" / "updated X min ago"
  */
-export function formatRelative(date: Date): string {
-  const diffMs = Date.now() - date.getTime();
+export function formatRelative(
+  date: Date,
+  currentTime: Date | number = Date.now(),
+): string {
+  const currentMs =
+    typeof currentTime === 'number' ? currentTime : currentTime.getTime();
+  const diffMs = currentMs - date.getTime();
   const diffSec = Math.round(diffMs / 1_000);
 
   if (diffSec < 60) return `actualizado hace ${diffSec}s`;

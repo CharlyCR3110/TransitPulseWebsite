@@ -11,7 +11,6 @@ import { Separator } from '@/components/ui/separator';
 import { ModePill } from '@/components/transit/ModePill';
 import { OccupancyBadge } from '@/components/transit/OccupancyBadge';
 import { StaleBanner } from '@/components/transit/StaleBanner';
-import { RouteChip } from '@/components/transit/RouteChip';
 import { getTrip } from '@/data/trips';
 import { getAlertsByRoute } from '@/data/alerts';
 import { formatDuration, formatFare, formatTime, formatRelative } from '@/lib/format';
@@ -30,6 +29,7 @@ export default async function TripDetailPage({ params }: Props) {
   const { id } = await params;
   const trip = getTrip(id);
   if (!trip) notFound();
+  const now = new Date();
 
   // Collect alerts affecting any leg's route
   const routeIds = trip.legs
@@ -46,7 +46,7 @@ export default async function TripDetailPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-5 space-y-5">
-      <StaleBanner updatedAt={trip.updatedAt} className="mb-1" />
+      <StaleBanner updatedAt={trip.updatedAt} initialNow={now} className="mb-1" />
 
       {/* Map placeholder */}
       <div className="rounded-xl overflow-hidden border bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 h-44 flex flex-col items-center justify-center gap-2 text-muted-foreground">
@@ -160,17 +160,16 @@ export default async function TripDetailPage({ params }: Props) {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">{alert.title}</p>
                     <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                      {alert.affectedRouteIds.map((rid) => {
-                        const r = routeIds.includes(rid);
-                        return r ? (
+                      {alert.affectedRouteIds.map((rid) =>
+                        routeIds.includes(rid) ? (
                           <span
                             key={rid}
                             className="inline-block rounded bg-muted px-1.5 py-0.5 text-xs"
                           >
                             {rid.replace('route-', '')}
                           </span>
-                        ) : null;
-                      })}
+                        ) : null,
+                      )}
                     </div>
                   </div>
                   <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />

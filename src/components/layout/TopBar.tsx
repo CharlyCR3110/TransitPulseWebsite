@@ -10,9 +10,7 @@ const titleMap: Record<string, string> = {
   '/plan': 'Planificar viaje',
   '/alerts': 'Alertas',
   '/routes': 'Rutas',
-  '/payments': 'Membresía',
   '/report': 'Reportar incidente',
-  '/account': 'Mi cuenta',
 };
 
 interface TopBarProps {

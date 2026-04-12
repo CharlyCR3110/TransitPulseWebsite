@@ -44,11 +44,20 @@ export function TripResultsList() {
       </div>
 
       {/* Trip cards */}
-      <div className="space-y-3">
-        {sorted.map((trip, idx) => (
-          <TripCard key={trip.id} trip={trip} rank={idx} />
-        ))}
-      </div>
+      {sorted.length === 0 ? (
+        <div className="rounded-xl border bg-card px-4 py-10 text-center">
+          <p className="text-sm font-medium mb-1">Sin opciones disponibles</p>
+          <p className="text-xs text-muted-foreground">
+            No encontramos opciones para ese viaje. Intenta con otro origen o destino.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {sorted.map((trip, idx) => (
+            <TripCard key={trip.id} trip={trip} rank={idx} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
