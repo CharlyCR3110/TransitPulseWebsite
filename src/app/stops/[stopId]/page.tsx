@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import { getStop } from '@/data/stops';
-import { getRoute } from '@/data/routes';
-import { getArrivalsByStop } from '@/data/arrivals';
+import { getStop } from '@/services/stops';
+import { getRoute } from '@/services/routes';
+import { getPredictions } from '@/services/predictions';
 import { RouteChip } from '@/components/transit/RouteChip';
 import { StatusBadge } from '@/components/transit/StatusBadge';
 import { OccupancyBadge } from '@/components/transit/OccupancyBadge';
@@ -14,14 +14,15 @@ interface Props {
 
 export default async function StopDetailPage({ params }: Props) {
   const { stopId } = await params;
-  const stop = getStop(stopId);
+  const [stop, arrivals] = await Promise.all([
+    getStop(stopId),
+    getPredictions({ stopId }),
+  ]);
   if (!stop) notFound();
-  const now = new Date();
 
-  const arrivals = getArrivalsByStop(stopId);
-  const servedRoutes = stop.routeIds
-    .map((rid) => getRoute(rid))
-    .filter((r): r is NonNullable<typeof r> => Boolean(r));
+  const servedRoutes = (
+    await Promise.all(stop.routeIds.map((rid) => getRoute(rid)))
+  ).filter((r): r is NonNullable<typeof r> => Boolean(r));
 
   // Freshness: use the oldest update among displayed arrivals
   const oldestUpdate =
@@ -39,7 +40,7 @@ export default async function StopDetailPage({ params }: Props) {
         <p className="text-xs text-muted-foreground mt-0.5">Parada de tránsito</p>
       </div>
 
-      <StaleBanner updatedAt={oldestUpdate} initialNow={now} />
+      <StaleBanner updatedAt={oldestUpdate} />
 
       {/* Served routes */}
       {servedRoutes.length > 0 && (
@@ -73,7 +74,7 @@ export default async function StopDetailPage({ params }: Props) {
         ) : (
           <div className="rounded-xl border bg-card overflow-hidden">
             {arrivals.map((arr, idx) => {
-              const route = getRoute(arr.routeId);
+              const route = servedRoutes.find((r) => r.id === arr.routeId);
               if (!route) return null;
               return (
                 <div key={arr.id}>

@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { AlertCircle, AlertTriangle, Calendar, Info, Navigation } from 'lucide-react';
 import { RouteChip } from '@/components/transit/RouteChip';
 import { cn } from '@/lib/utils';
-import { getAlert } from '@/data/alerts';
-import { routes } from '@/data/routes';
-import { stops } from '@/data/stops';
+import { getAlert } from '@/services/alerts';
+import { getRoutes } from '@/services/routes';
+import { getStopsByIds } from '@/services/stops';
 import { formatTime } from '@/lib/format';
 import type { AlertSeverity } from '@/types/alerts';
 
@@ -44,14 +44,14 @@ const severityConfig: Record<
 
 export default async function AlertDetailPage({ params }: Props) {
   const { alertId } = await params;
-  const alert = getAlert(alertId);
+  const [alert, routes] = await Promise.all([getAlert(alertId), getRoutes()]);
   if (!alert) notFound();
 
   const { icon: Icon, label: severityLabel, classes, bannerClass } =
     severityConfig[alert.severity];
 
   const affectedRoutes = routes.filter((r) => alert.affectedRouteIds.includes(r.id));
-  const affectedStops = stops.filter((s) => alert.affectedStopIds.includes(s.id));
+  const affectedStops = await getStopsByIds(alert.affectedStopIds);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-5 space-y-5">

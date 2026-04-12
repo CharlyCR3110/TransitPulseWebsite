@@ -5,12 +5,15 @@ import { MapPin, Navigation, Clock, LocateFixed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TripResultsList } from './TripResultsList';
+import { searchTrips } from '@/services/trips';
+import type { Trip } from '@/types/transit';
 
 export function PlannerForm() {
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
   const [mode, setMode] = useState<'now' | 'schedule'>('now');
-  const [searched, setSearched] = useState(false);
+  const [results, setResults] = useState<Trip[] | null>(null);
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ origin?: string; destination?: string }>({});
   const [locating, setLocating] = useState(false);
   const [locError, setLocError] = useState('');
@@ -35,7 +38,7 @@ export function PlannerForm() {
     );
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: typeof errors = {};
     if (!origin.trim()) newErrors.origin = 'Ingresa un origen.';
@@ -45,7 +48,13 @@ export function PlannerForm() {
       return;
     }
     setErrors({});
-    setSearched(true);
+    setLoading(true);
+    try {
+      const trips = await searchTrips(origin, destination);
+      setResults(trips);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -133,18 +142,18 @@ export function PlannerForm() {
           />
         )}
 
-        <Button type="submit" size="lg" className="w-full font-semibold">
-          Buscar opciones
+        <Button type="submit" size="lg" className="w-full font-semibold" disabled={loading}>
+          {loading ? 'Buscando...' : 'Buscar opciones'}
         </Button>
       </form>
 
-      {searched && (
+      {results !== null && (
         <div>
           <p className="text-xs text-muted-foreground mb-3">
             Opciones de viaje: <span className="font-medium text-foreground">{origin}</span> →{' '}
             <span className="font-medium text-foreground">{destination}</span>
           </p>
-          <TripResultsList />
+          <TripResultsList trips={results} />
         </div>
       )}
     </div>

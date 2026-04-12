@@ -5,21 +5,28 @@ import { AlertBanner } from '@/components/transit/AlertBanner';
 import { StatusBadge } from '@/components/transit/StatusBadge';
 import { OccupancyBadge } from '@/components/transit/OccupancyBadge';
 import { RouteChip } from '@/components/transit/RouteChip';
-import { stops } from '@/data/stops';
-import { routes, getRoute } from '@/data/routes';
-import { getArrivalsByStop } from '@/data/arrivals';
-import { getActiveAlerts } from '@/data/alerts';
+import { getActiveAlerts } from '@/services/alerts';
+import { getRoutes } from '@/services/routes';
+import { getNearbyStops, getStop } from '@/services/stops';
+import { getPredictions } from '@/services/predictions';
 import { formatETA, formatTime } from '@/lib/format';
 
-export default function HomePage() {
-  const activeAlerts = getActiveAlerts();
+export default async function HomePage() {
+  const [activeAlerts, nearbyStops, routes] = await Promise.all([
+    getActiveAlerts(),
+    getNearbyStops(9.9281, -84.0907), // GAM, Costa Rica — real coords from browser later
+    getRoutes(),
+  ]);
+
   const topAlert = activeAlerts.find(
     (a) => a.severity === 'critical' || a.severity === 'warning',
   );
 
   // Default "favorite" stop
-  const favoriteStop = stops.find((s) => s.id === 'stop-sjc')!;
-  const favoriteArrivals = getArrivalsByStop(favoriteStop.id).slice(0, 5);
+  const favoriteStop = await getStop('stop-sjc');
+  const favoriteArrivals = favoriteStop
+    ? (await getPredictions({ stopId: favoriteStop.id })).slice(0, 5)
+    : [];
 
   // Saved routes (mocked)
   const savedRoutes = routes.filter((r) =>
@@ -27,16 +34,12 @@ export default function HomePage() {
   );
 
   // Nearby stops with their next 2 arrivals
-  const nearbyStops = stops
-    .filter((s) =>
-      ['stop-sjc', 'stop-hatillo', 'stop-sabana', 'stop-heredia', 'stop-tibas'].includes(
-        s.id,
-      ),
-    )
-    .map((stop) => ({
+  const nearbyWithArrivals = await Promise.all(
+    nearbyStops.map(async (stop) => ({
       stop,
-      arrivals: getArrivalsByStop(stop.id).slice(0, 2),
-    }));
+      arrivals: (await getPredictions({ stopId: stop.id })).slice(0, 2),
+    })),
+  );
 
   return (
     <>
@@ -78,7 +81,7 @@ export default function HomePage() {
             className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             role="list"
           >
-            {nearbyStops.map(({ stop, arrivals: stopArrivals }) => (
+            {nearbyWithArrivals.map(({ stop, arrivals: stopArrivals }) => (
               <Link
                 key={stop.id}
                 href={`/stops/${stop.id}`}
@@ -91,7 +94,7 @@ export default function HomePage() {
                 ) : (
                   <div className="space-y-2">
                     {stopArrivals.map((arr) => {
-                      const route = getRoute(arr.routeId);
+                      const route = routes.find((r) => r.id === arr.routeId);
                       if (!route) return null;
                       return (
                         <div key={arr.id} className="flex items-center gap-2">
@@ -121,98 +124,101 @@ export default function HomePage() {
         </section>
 
         {/* Favorite stop next arrivals */}
-        <section aria-labelledby="arrivals-heading">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h3 id="arrivals-heading" className="font-semibold text-base">
-                {favoriteStop.name}
-              </h3>
-              <p className="text-xs text-muted-foreground">Parada favorita</p>
-            </div>
-          </div>
-
-          <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-            <div className="flex items-center gap-1.5 px-4 py-2 border-b bg-muted/40">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-on-time opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-on-time" />
-              </span>
-              <span className="text-xs text-muted-foreground">Datos en tiempo real</span>
+        {favoriteStop && (
+          <section aria-labelledby="arrivals-heading">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 id="arrivals-heading" className="font-semibold text-base">
+                  {favoriteStop.name}
+                </h3>
+                <p className="text-xs text-muted-foreground">Parada favorita</p>
+              </div>
             </div>
 
-            {favoriteArrivals.length === 0 ? (
-              <p className="px-4 py-6 text-sm text-muted-foreground text-center">
-                No hay llegadas próximas disponibles.
-              </p>
-            ) : (
-              <ul>
-                {favoriteArrivals.map((arr, idx) => {
-                  const route = getRoute(arr.routeId);
-                  if (!route) return null;
-                  const etaColor =
-                    arr.status === 'on-time'
-                      ? 'text-on-time'
-                      : arr.status === 'delayed'
-                        ? 'text-delayed'
-                        : 'text-disrupted';
-                  return (
-                    <li key={arr.id}>
-                      {idx > 0 && <Separator />}
-                      <div className="flex items-center gap-3 px-4 py-3">
-                        <div className="w-20 shrink-0 flex justify-start">
-                          <RouteChip route={route} size="sm" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate leading-tight">
-                            {arr.destination}
-                          </p>
-                          <p className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
-                            <StatusBadge status={arr.status} />
-                            <OccupancyBadge level={arr.occupancy} showLabel={false} />
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className={`text-sm font-mono font-bold leading-tight ${etaColor}`}>
-                            {formatETA(arr.predictedAt)}
-                          </p>
-                          <p className="text-xs text-muted-foreground font-mono mt-0.5">
-                            {formatTime(arr.predictedAt)}
-                          </p>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+            <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+              <div className="flex items-center gap-1.5 px-4 py-2 border-b bg-muted/40">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-on-time opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-on-time" />
+                </span>
+                <span className="text-xs text-muted-foreground">Datos en tiempo real</span>
+              </div>
 
-            <div className="border-t">
-              <Link
-                href={`/stops/${favoriteStop.id}`}
-                className="flex items-center justify-center gap-1 px-4 py-3 text-xs text-primary hover:bg-primary/5 transition-colors"
-              >
-                Ver todas las llegadas
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Link>
+              {favoriteArrivals.length === 0 ? (
+                <p className="px-4 py-6 text-sm text-muted-foreground text-center">
+                  No hay llegadas próximas disponibles.
+                </p>
+              ) : (
+                <ul>
+                  {favoriteArrivals.map((arr, idx) => {
+                    const route = routes.find((r) => r.id === arr.routeId);
+                    if (!route) return null;
+                    const etaColor =
+                      arr.status === 'on-time'
+                        ? 'text-on-time'
+                        : arr.status === 'delayed'
+                          ? 'text-delayed'
+                          : 'text-disrupted';
+                    return (
+                      <li key={arr.id}>
+                        {idx > 0 && <Separator />}
+                        <div className="flex items-center gap-3 px-4 py-3">
+                          <div className="w-20 shrink-0 flex justify-start">
+                            <RouteChip route={route} size="sm" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate leading-tight">
+                              {arr.destination}
+                            </p>
+                            <p className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
+                              <StatusBadge status={arr.status} />
+                              <OccupancyBadge level={arr.occupancy} showLabel={false} />
+                            </p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className={`text-sm font-mono font-bold leading-tight ${etaColor}`}>
+                              {formatETA(arr.predictedAt)}
+                            </p>
+                            <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                              {formatTime(arr.predictedAt)}
+                            </p>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+
+              <div className="border-t">
+                <Link
+                  href={`/stops/${favoriteStop.id}`}
+                  className="flex items-center justify-center gap-1 px-4 py-3 text-xs text-primary hover:bg-primary/5 transition-colors"
+                >
+                  Ver todas las llegadas
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Saved routes */}
-        <section aria-labelledby="saved-heading">
-          <h3
-            id="saved-heading"
-            className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3"
-          >
-            Rutas guardadas
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {savedRoutes.map((route) => (
-              <RouteChip key={route.id} route={route} asLink size="md" />
-            ))}
-          </div>
-        </section>
-
+        {savedRoutes.length > 0 && (
+          <section aria-labelledby="saved-heading">
+            <h3
+              id="saved-heading"
+              className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3"
+            >
+              Rutas guardadas
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {savedRoutes.map((route) => (
+                <RouteChip key={route.id} route={route} asLink size="md" />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </>
   );

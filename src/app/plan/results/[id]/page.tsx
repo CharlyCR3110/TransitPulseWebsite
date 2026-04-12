@@ -11,8 +11,8 @@ import { Separator } from '@/components/ui/separator';
 import { ModePill } from '@/components/transit/ModePill';
 import { OccupancyBadge } from '@/components/transit/OccupancyBadge';
 import { StaleBanner } from '@/components/transit/StaleBanner';
-import { getTrip } from '@/data/trips';
-import { getAlertsByRoute } from '@/data/alerts';
+import { getTrip } from '@/services/trips';
+import { getAlertsByRoute } from '@/services/alerts';
 import { formatDuration, formatFare, formatTime, formatRelative } from '@/lib/format';
 
 interface Props {

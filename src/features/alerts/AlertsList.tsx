@@ -7,11 +7,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { formatTime } from '@/lib/format';
 import { RouteChip } from '@/components/transit/RouteChip';
-import { routes } from '@/data/routes';
 import type { Alert, AlertSeverity } from '@/types/alerts';
+import type { Route } from '@/types/transit';
 
 interface AlertsListProps {
   alerts: Alert[];
+  routes: Route[];
 }
 
 type SeverityFilter = AlertSeverity | 'all';
@@ -40,7 +41,7 @@ const severityConfig: Record<
   },
 };
 
-function AlertCard({ alert }: { alert: Alert }) {
+function AlertCard({ alert, routes }: { alert: Alert; routes: Route[] }) {
   const { icon: Icon, borderClass, bgClass } = severityConfig[alert.severity];
   const affectedRoutes = routes.filter((r) => alert.affectedRouteIds.includes(r.id));
 
@@ -78,7 +79,7 @@ function AlertCard({ alert }: { alert: Alert }) {
   );
 }
 
-export function AlertsList({ alerts }: AlertsListProps) {
+export function AlertsList({ alerts, routes }: AlertsListProps) {
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
 
   const active = alerts.filter((a) => a.isActive);
@@ -139,7 +140,7 @@ export function AlertsList({ alerts }: AlertsListProps) {
             </p>
           ) : (
             filterBySeverity(active).map((alert) => (
-              <AlertCard key={alert.id} alert={alert} />
+              <AlertCard key={alert.id} alert={alert} routes={routes} />
             ))
           )}
         </TabsContent>
@@ -151,14 +152,14 @@ export function AlertsList({ alerts }: AlertsListProps) {
             </p>
           ) : (
             filterBySeverity(upcoming).map((alert) => (
-              <AlertCard key={alert.id} alert={alert} />
+              <AlertCard key={alert.id} alert={alert} routes={routes} />
             ))
           )}
         </TabsContent>
 
         <TabsContent value="all" className="mt-4 space-y-3">
           {filterBySeverity(alerts).map((alert) => (
-            <AlertCard key={alert.id} alert={alert} />
+            <AlertCard key={alert.id} alert={alert} routes={routes} />
           ))}
         </TabsContent>
       </Tabs>

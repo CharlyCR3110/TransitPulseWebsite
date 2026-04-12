@@ -1,28 +1,34 @@
 import { notFound } from 'next/navigation';
 import { Clock } from 'lucide-react';
+import Link from 'next/link';
 import { ModePill } from '@/components/transit/ModePill';
 import { StatusBadge } from '@/components/transit/StatusBadge';
 import { RouteChip } from '@/components/transit/RouteChip';
-import { getRoute } from '@/data/routes';
-import { stops } from '@/data/stops';
-import { getArrivalsByRoute } from '@/data/arrivals';
-import { getAlertsByRoute } from '@/data/alerts';
+import { getRoute } from '@/services/routes';
+import { getPredictions } from '@/services/predictions';
+import { getAlertsByRoute } from '@/services/alerts';
+import { getStopsByIds } from '@/services/stops';
 import { formatFare, formatTime } from '@/lib/format';
-import Link from 'next/link';
+
 interface Props {
   params: Promise<{ routeId: string }>;
 }
 
 export default async function RouteDetailPage({ params }: Props) {
   const { routeId } = await params;
-  const route = getRoute(routeId);
+  const [route, arrivals, alerts] = await Promise.all([
+    getRoute(routeId),
+    getPredictions({ routeId }),
+    getAlertsByRoute(routeId),
+  ]);
   if (!route) notFound();
 
-  const routeArrivals = getArrivalsByRoute(routeId).slice(0, 6);
-  const routeAlerts = getAlertsByRoute(routeId).filter((a) => a.isActive);
+  const routeArrivals = arrivals.slice(0, 6);
+  const routeAlerts = alerts.filter((a) => a.isActive);
 
-  // Stops served by this route
-  const servedStops = stops.filter((s) => s.routeIds.includes(routeId));
+  // Stops served by this route — derive from arrivals stop IDs
+  const stopIds = [...new Set(arrivals.map((a) => a.stopId))];
+  const servedStops = await getStopsByIds(stopIds);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-5 space-y-5">
@@ -71,7 +77,7 @@ export default async function RouteDetailPage({ params }: Props) {
           <h3 className="font-semibold text-base mb-3">Próximas salidas</h3>
           <div className="rounded-xl border bg-card overflow-hidden">
             {routeArrivals.map((arr, idx) => {
-              const stop = stops.find((s) => s.id === arr.stopId);
+              const stop = servedStops.find((s) => s.id === arr.stopId);
               return (
                 <div key={arr.id}>
                   {idx > 0 && <div className="border-t" />}

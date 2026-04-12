@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { TripCard } from './TripCard';
-import { trips } from '@/data/trips';
 import type { Trip } from '@/types/transit';
 
 type SortKey = 'fastest' | 'cheapest' | 'fewest-transfers';
@@ -20,7 +19,11 @@ function sortTrips(list: Trip[], key: SortKey): Trip[] {
   return copy.sort((a, b) => a.transfers - b.transfers);
 }
 
-export function TripResultsList() {
+interface TripResultsListProps {
+  trips: Trip[];
+}
+
+export function TripResultsList({ trips }: TripResultsListProps) {
   const [sort, setSort] = useState<SortKey>('fastest');
   const sorted = sortTrips(trips, sort);
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CheckCircle2, ShieldCheck } from 'lucide-react';
+import { submitReport } from '@/services/reports';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -19,10 +20,14 @@ export function ReportForm() {
   const [context, setContext] = useState('');
   const [note, setNote] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selected) return;
+    setSubmitting(true);
+    await submitReport({ type: selected, description: note || undefined, stopId: context || undefined });
+    setSubmitting(false);
     setSubmitted(true);
   };
 
@@ -121,9 +126,9 @@ export function ReportForm() {
         type="submit"
         size="lg"
         className="w-full font-semibold"
-        disabled={!selected}
+        disabled={!selected || submitting}
       >
-        Enviar reporte
+        {submitting ? 'Enviando...' : 'Enviar reporte'}
       </Button>
     </form>
   );

@@ -1,7 +1,9 @@
-import { alerts } from '@/data/alerts';
+import { getAlerts } from '@/services/alerts';
+import { getRoutes } from '@/services/routes';
 import { AlertsList } from '@/features/alerts/AlertsList';
 
-export default function AlertsPage() {
+export default async function AlertsPage() {
+  const [alerts, routes] = await Promise.all([getAlerts(), getRoutes()]);
   const activeCount = alerts.filter((a) => a.isActive).length;
 
   return (
@@ -14,7 +16,7 @@ export default function AlertsPage() {
             : 'No hay alertas activas en este momento'}
         </p>
       </div>
-      <AlertsList alerts={alerts} />
+      <AlertsList alerts={alerts} routes={routes} />
     </div>
   );
 }
