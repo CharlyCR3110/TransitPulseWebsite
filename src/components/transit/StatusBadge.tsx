@@ -26,6 +26,18 @@ const config: Record<
     label: 'Sin datos',
     classes: 'bg-unknown/15 text-unknown border-unknown/30',
   },
+  ok: {
+    label: 'A tiempo',
+    classes: 'bg-on-time/15 text-on-time border-on-time/30',
+  },
+  warn: {
+    label: 'Con demora',
+    classes: 'bg-delayed/15 text-delayed border-delayed/30',
+  },
+  bad: {
+    label: 'Interrumpido',
+    classes: 'bg-disrupted/15 text-disrupted border-disrupted/30',
+  },
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

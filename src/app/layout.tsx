@@ -1,39 +1,29 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
-import { TopBar } from '@/components/layout/TopBar';
-import { BottomNav } from '@/components/layout/BottomNav';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: '--font-ibm-plex-mono',
+  weight: ['400', '500', '600'],
   subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
   title: 'TransitPulse',
-  description:
-    'Tu guía de transporte público en tiempo real para el GAM de Costa Rica.',
+  description: 'Tu guía de transporte público en tiempo real para el GAM de Costa Rica.',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col bg-background text-foreground">
-        <TopBar />
-        <main className="flex-1 pb-16 md:pb-0">{children}</main>
-        <BottomNav />
+    <html lang="es">
+      <body className={`${inter.variable} ${ibmPlexMono.variable}`}>
+        {children}
       </body>
     </html>
   );

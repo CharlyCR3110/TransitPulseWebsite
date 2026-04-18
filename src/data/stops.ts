@@ -1,6 +1,6 @@
-import type { Stop } from '@/types/transit';
+import type { LegacyStop } from '@/types/transit';
 
-export const stops: Stop[] = [
+export const stops: LegacyStop[] = [
   {
     id: 'stop-sjc',
     name: 'San José Central',
@@ -63,6 +63,6 @@ export const stops: Stop[] = [
   },
 ];
 
-export function getStop(id: string): Stop | undefined {
+export function getStop(id: string): LegacyStop | undefined {
   return stops.find((s) => s.id === id);
 }

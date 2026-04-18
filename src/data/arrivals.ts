@@ -1,9 +1,20 @@
-import type { Arrival } from '@/types/transit';
+interface LegacyArrival {
+  id: string;
+  routeId: string;
+  stopId: string;
+  destination: string;
+  predictedAt: Date;
+  scheduledAt: Date;
+  status: 'on-time' | 'delayed' | 'disrupted' | 'unknown';
+  occupancy: 'low' | 'medium' | 'high' | 'packed';
+  confidence: 'high' | 'medium' | 'low';
+  updatedAt: Date;
+}
 
 const now = new Date();
 const mins = (n: number) => new Date(now.getTime() + n * 60_000);
 
-export const arrivals: Arrival[] = [
+export const arrivals: LegacyArrival[] = [
   {
     id: 'arr-1',
     routeId: 'route-106',
@@ -186,12 +197,12 @@ export const arrivals: Arrival[] = [
   },
 ];
 
-export function getArrivalsByStop(stopId: string): Arrival[] {
+export function getArrivalsByStop(stopId: string): LegacyArrival[] {
   return arrivals
     .filter((a) => a.stopId === stopId)
     .sort((a, b) => a.predictedAt.getTime() - b.predictedAt.getTime());
 }
 
-export function getArrivalsByRoute(routeId: string): Arrival[] {
+export function getArrivalsByRoute(routeId: string): LegacyArrival[] {
   return arrivals.filter((a) => a.routeId === routeId);
 }
