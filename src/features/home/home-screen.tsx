@@ -32,7 +32,7 @@ export function HomeScreen({ t, lang, arrivals, alertsCount, onOpenStop, onOpenA
         <p className="hero-sub">{t('sub_home')}</p>
       </div>
 
-      <div style={{ padding: '16px 20px 4px' }}>
+      <div style={{ padding: '16px 0 4px' }}>
         <button className="search-box" onClick={onOpenPlanner}>
           <Icon name="search" size={18} />
           <span style={{ flex: 1 }}>{t('plan_trip')}</span>
@@ -41,7 +41,7 @@ export function HomeScreen({ t, lang, arrivals, alertsCount, onOpenStop, onOpenA
       </div>
 
       {alertsCount > 0 && (
-        <div style={{ padding: '12px 20px 4px' }}>
+        <div style={{ padding: '12px 0 4px' }}>
           <button
             onClick={onOpenAlerts}
             style={{
