@@ -1,14 +1,12 @@
 'use client';
 import { Icon } from '@/components/ui/icons';
 import { NEARBY_STOPS } from '@/data/transit';
+import { useLang } from '@/components/providers/lang-provider';
 import type { I18nKey } from '@/data/transit';
 
-interface ProfileScreenProps {
-  t: (key: I18nKey) => string;
-  lang: 'es' | 'en';
-}
+export function ProfileScreen() {
+  const { t, lang } = useLang();
 
-export function ProfileScreen({ t, lang }: ProfileScreenProps) {
   const stats = [
     { v: '42', lEs: 'Viajes', lEn: 'Trips' },
     { v: '18h', lEs: 'En transporte', lEn: 'On transit' },
@@ -28,7 +26,7 @@ export function ProfileScreen({ t, lang }: ProfileScreenProps) {
 
       <div className="section">
         <div className="section-head">
-          <span className="section-title">{lang === 'es' ? 'Favoritos' : 'Favorites'}</span>
+          <span className="section-title">{t('favorites')}</span>
         </div>
         <div className="stack">
           {NEARBY_STOPS.slice(0, 2).map((s) => (
@@ -48,7 +46,7 @@ export function ProfileScreen({ t, lang }: ProfileScreenProps) {
 
       <div className="section">
         <div className="section-head">
-          <span className="section-title">{lang === 'es' ? 'Este mes' : 'This month'}</span>
+          <span className="section-title">{t('this_month')}</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {stats.map((x) => (

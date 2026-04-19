@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { AppBar } from '@/components/layout/app-bar';
 import { Icon } from '@/components/ui/icons';
 import { MiniMap } from '@/components/transit/mini-map';
@@ -7,27 +8,27 @@ import { RouteBadge } from '@/components/transit/route-badge';
 import { OccBars } from '@/components/transit/occ-bars';
 import { StatusChip } from '@/components/transit/status-chip';
 import { TRIP_OPTIONS, ALERTS } from '@/data/transit';
+import { useLang } from '@/components/providers/lang-provider';
+import { useTripOptions } from '@/lib/hooks/use-trip-options';
 import type { I18nKey } from '@/data/transit';
 import type { BusStep } from '@/types/transit';
 
 interface TripDetailScreenProps {
-  t: (key: I18nKey) => string;
-  lang: 'es' | 'en';
   tripId: string;
-  onBack: () => void;
-  onOpenAlerts: () => void;
 }
 
-export function TripDetailScreen({ t, lang, tripId, onBack, onOpenAlerts }: TripDetailScreenProps) {
-  const trip = TRIP_OPTIONS.find((r) => r.id === tripId) || TRIP_OPTIONS[0];
+export function TripDetailScreen({ tripId }: TripDetailScreenProps) {
+  const { t, lang } = useLang();
+  const tripOptions = useTripOptions();
+  const router = useRouter();
+
+  const trip = tripOptions.find((r) => r.id === tripId) ?? TRIP_OPTIONS[0];
   const confLabel: I18nKey = trip.confidence >= 0.9 ? 'reliable' : trip.confidence >= 0.8 ? 'moderate' : 'low';
   const arrivalTime = trip.steps[trip.steps.length - 1].time;
   const departTime = trip.steps[0].time;
 
   const tripRoutes = new Set(
-    trip.steps
-      .filter((s): s is BusStep => s.kind === 'bus')
-      .map((s) => s.route)
+    trip.steps.filter((s): s is BusStep => s.kind === 'bus').map((s) => s.route)
   );
   const related = ALERTS.filter((al) => al.routes.some((r) => tripRoutes.has(r))).slice(0, 2);
 
@@ -35,7 +36,7 @@ export function TripDetailScreen({ t, lang, tripId, onBack, onOpenAlerts }: Trip
     <div className="screen screen-fade">
       <AppBar
         title={`${t('duration')} · ${trip.minutes} ${t('min')}`}
-        onBack={onBack}
+        showBack
         trailing={
           <>
             <button className="appbar-action"><Icon name="refresh" size={18} /></button>
@@ -131,7 +132,7 @@ export function TripDetailScreen({ t, lang, tripId, onBack, onOpenAlerts }: Trip
         <div className="section">
           <div className="section-head">
             <span className="section-title">{t('related_alerts')}</span>
-            <button className="section-link" onClick={onOpenAlerts}>{t('view_all')}</button>
+            <button className="section-link" onClick={() => router.push('/alerts')}>{t('view_all')}</button>
           </div>
           <div className="stack">
             {related.map((al) => (

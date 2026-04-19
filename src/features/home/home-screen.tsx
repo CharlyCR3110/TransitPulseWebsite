@@ -1,23 +1,21 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/icons';
 import { LiveDot } from '@/components/transit/live-dot';
 import { ArrivalRow } from '@/components/transit/arrival-row';
 import { MiniMap } from '@/components/transit/mini-map';
 import { NEARBY_STOPS } from '@/data/transit';
-import type { Arrival } from '@/types/transit';
+import { useLang } from '@/components/providers/lang-provider';
+import { useArrivals } from '@/lib/hooks/use-arrivals';
+import { useAlerts } from '@/lib/hooks/use-alerts';
 import type { I18nKey } from '@/data/transit';
 
-interface HomeScreenProps {
-  t: (key: I18nKey) => string;
-  lang: 'es' | 'en';
-  arrivals: Arrival[];
-  alertsCount: number;
-  onOpenStop: (id: string) => void;
-  onOpenAlerts: () => void;
-  onOpenPlanner: () => void;
-}
+export function HomeScreen() {
+  const { t, lang } = useLang();
+  const arrivals = useArrivals();
+  const { alertsCount } = useAlerts();
+  const router = useRouter();
 
-export function HomeScreen({ t, lang, arrivals, alertsCount, onOpenStop, onOpenAlerts, onOpenPlanner }: HomeScreenProps) {
   const hour = new Date().getHours();
   const gKey: I18nKey = hour < 12 ? 'greeting_morning' : hour < 19 ? 'greeting_afternoon' : 'greeting_evening';
 
@@ -33,7 +31,7 @@ export function HomeScreen({ t, lang, arrivals, alertsCount, onOpenStop, onOpenA
       </div>
 
       <div style={{ padding: '16px 0 4px' }}>
-        <button className="search-box" onClick={onOpenPlanner}>
+        <button className="search-box" onClick={() => router.push('/planner')}>
           <Icon name="search" size={18} />
           <span style={{ flex: 1 }}>{t('plan_trip')}</span>
           <span className="chip chip--primary" style={{ fontSize: 10 }}>{t('plan')}</span>
@@ -43,7 +41,7 @@ export function HomeScreen({ t, lang, arrivals, alertsCount, onOpenStop, onOpenA
       {alertsCount > 0 && (
         <div style={{ padding: '12px 0 4px' }}>
           <button
-            onClick={onOpenAlerts}
+            onClick={() => router.push('/alerts')}
             style={{
               width: '100%', display: 'flex', alignItems: 'center', gap: 12,
               padding: '12px 14px',
@@ -72,11 +70,11 @@ export function HomeScreen({ t, lang, arrivals, alertsCount, onOpenStop, onOpenA
       <div className="section">
         <div className="section-head">
           <span className="section-title">{t('next_departures')}</span>
-          <button className="section-link" onClick={() => onOpenStop('s1')}>{t('view_all')}</button>
+          <button className="section-link" onClick={() => router.push('/stops/s1')}>{t('view_all')}</button>
         </div>
         <div className="card--flat">
           {arrivals.slice(0, 4).map((a) => (
-            <ArrivalRow key={a.id} a={a} t={t} lang={lang} onClick={() => onOpenStop('s1')} />
+            <ArrivalRow key={a.id} a={a} t={t} lang={lang} onClick={() => router.push('/stops/s1')} />
           ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
@@ -91,7 +89,7 @@ export function HomeScreen({ t, lang, arrivals, alertsCount, onOpenStop, onOpenA
         </div>
         <div className="stack">
           {NEARBY_STOPS.map((s) => (
-            <button key={s.id} className="card--flat" onClick={() => onOpenStop(s.id)} style={{ padding: '12px 14px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+            <button key={s.id} className="card--flat" onClick={() => router.push(`/stops/${s.id}`)} style={{ padding: '12px 14px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
               <div style={{ width: 40, height: 40, borderRadius: 'var(--r-sm)', background: 'var(--primary-weak)', color: 'var(--primary-strong)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
                 <Icon name="pin" size={18} />
               </div>

@@ -1,35 +1,32 @@
 'use client';
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { AppBar } from '@/components/layout/app-bar';
 import { Icon } from '@/components/ui/icons';
 import { OccBars } from '@/components/transit/occ-bars';
 import { StatusChip } from '@/components/transit/status-chip';
-import { TRIP_OPTIONS } from '@/data/transit';
+import { useLang } from '@/components/providers/lang-provider';
+import { useTripOptions } from '@/lib/hooks/use-trip-options';
 import type { I18nKey } from '@/data/transit';
 
-interface PlannerScreenProps {
-  t: (key: I18nKey) => string;
-  lang: 'es' | 'en';
-  onOpenDetail: (id: string) => void;
-  onBack?: () => void;
-}
-
-export function PlannerScreen({ t, lang, onOpenDetail, onBack }: PlannerScreenProps) {
+export function PlannerScreen() {
+  const { t } = useLang();
+  const tripOptions = useTripOptions();
+  const router = useRouter();
   const [sort, setSort] = useState<'fastest' | 'cheapest' | 'fewest'>('fastest');
   const [from, setFrom] = useState('San Pedro · UCR');
   const [to, setTo] = useState('Multiplaza Escazú');
   const [searching, setSearching] = useState(false);
 
   const sorted = useMemo(() => {
-    const arr = [...TRIP_OPTIONS];
+    const arr = [...tripOptions];
     if (sort === 'fastest') arr.sort((a, b) => a.minutes - b.minutes);
     if (sort === 'cheapest') arr.sort((a, b) => a.price - b.price);
     if (sort === 'fewest') arr.sort((a, b) => a.transfers - b.transfers || a.minutes - b.minutes);
     return arr;
-  }, [sort]);
+  }, [tripOptions, sort]);
 
   const swap = () => { setFrom(to); setTo(from); };
-
   const runSearch = () => { setSearching(true); setTimeout(() => setSearching(false), 700); };
 
   const sortTabs: { id: 'fastest' | 'cheapest' | 'fewest'; labelKey: I18nKey }[] = [
@@ -38,12 +35,9 @@ export function PlannerScreen({ t, lang, onOpenDetail, onBack }: PlannerScreenPr
     { id: 'fewest', labelKey: 'fewest' },
   ];
 
-  // suppress unused warning
-  void lang;
-
   return (
     <div className="screen screen-fade">
-      <AppBar title={t('plan_trip')} onBack={onBack} />
+      <AppBar title={t('plan_trip')} showBack />
 
       <div style={{ padding: '0 20px 12px', position: 'relative' }}>
         <div className="planner-fields">
@@ -78,7 +72,7 @@ export function PlannerScreen({ t, lang, onOpenDetail, onBack }: PlannerScreenPr
           const isBest = i === 0;
           const flagKey: I18nKey = sort === 'fastest' ? 'fastest' : sort === 'cheapest' ? 'cheapest' : 'fewest';
           return (
-            <div key={opt.id} className={`route-opt ${isBest ? 'best' : ''}`} onClick={() => onOpenDetail(opt.id)}>
+            <div key={opt.id} className={`route-opt ${isBest ? 'best' : ''}`} onClick={() => router.push(`/planner/${opt.id}`)}>
               {isBest && <span className="route-opt-flag">{t(flagKey)}</span>}
               <div className="route-opt-head">
                 <div>

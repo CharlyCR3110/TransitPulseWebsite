@@ -1,25 +1,25 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AppBar } from '@/components/layout/app-bar';
 import { Icon } from '@/components/ui/icons';
 import { LiveDot } from '@/components/transit/live-dot';
 import { MiniMap } from '@/components/transit/mini-map';
 import { ArrivalRow } from '@/components/transit/arrival-row';
-import { NEARBY_STOPS } from '@/data/transit';
-import type { Arrival } from '@/types/transit';
+import { useLang } from '@/components/providers/lang-provider';
+import { useArrivals } from '@/lib/hooks/use-arrivals';
+import { useStop } from '@/lib/hooks/use-stop';
 import type { I18nKey } from '@/data/transit';
 
 interface StopScreenProps {
-  t: (key: I18nKey) => string;
-  lang: 'es' | 'en';
   stopId: string;
-  arrivals: Arrival[];
-  onBack: () => void;
-  onOpenDetail: (id: string) => void;
 }
 
-export function StopScreen({ t, lang, stopId, arrivals, onBack, onOpenDetail }: StopScreenProps) {
-  const stop = NEARBY_STOPS.find((s) => s.id === stopId) || NEARBY_STOPS[0];
+export function StopScreen({ stopId }: StopScreenProps) {
+  const { t, lang } = useLang();
+  const arrivals = useArrivals();
+  const stop = useStop(stopId);
+  const router = useRouter();
   const [updatedSec, setUpdatedSec] = useState(3);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function StopScreen({ t, lang, stopId, arrivals, onBack, onOpenDetail }: 
 
   return (
     <div className="screen screen-fade">
-      <AppBar title={t('stop_code')} onBack={onBack} trailing={
+      <AppBar title={t('stop_code')} showBack trailing={
         <>
           <button className="appbar-action"><Icon name="star" size={18} /></button>
           <button className="appbar-action"><Icon name="map" size={18} /></button>
@@ -62,7 +62,7 @@ export function StopScreen({ t, lang, stopId, arrivals, onBack, onOpenDetail }: 
         </div>
         <div className="card--flat">
           {arrivals.map((a) => (
-            <ArrivalRow key={a.id} a={a} t={t} lang={lang} onClick={() => onOpenDetail('r1')} />
+            <ArrivalRow key={a.id} a={a} t={t} lang={lang} onClick={() => router.push('/planner/r1')} />
           ))}
         </div>
       </div>

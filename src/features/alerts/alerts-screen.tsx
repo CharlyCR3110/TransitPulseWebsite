@@ -2,34 +2,28 @@
 import { useState, useMemo } from 'react';
 import { AppBar } from '@/components/layout/app-bar';
 import { Icon } from '@/components/ui/icons';
-import { ALERTS } from '@/data/transit';
+import { useLang } from '@/components/providers/lang-provider';
+import { useAlerts } from '@/lib/hooks/use-alerts';
 import type { I18nKey } from '@/data/transit';
-
-interface AlertsScreenProps {
-  t: (key: I18nKey) => string;
-  lang: 'es' | 'en';
-  onBack?: () => void;
-}
 
 type FilterId = 'all' | 'critical' | 'warn' | 'info';
 
-export function AlertsScreen({ t, lang, onBack }: AlertsScreenProps) {
+export function AlertsScreen() {
+  const { t } = useLang();
+  const { alerts } = useAlerts();
   const [filter, setFilter] = useState<FilterId>('all');
 
-  // suppress unused warning
-  void lang;
-
   const filtered = useMemo(() => {
-    if (filter === 'all') return ALERTS;
-    return ALERTS.filter((a) => {
+    if (filter === 'all') return alerts;
+    return alerts.filter((a) => {
       if (filter === 'critical') return a.severity === 'bad';
       if (filter === 'warn') return a.severity === 'warn';
       if (filter === 'info') return a.severity === 'ok';
       return true;
     });
-  }, [filter]);
+  }, [alerts, filter]);
 
-  const count = (sev: string) => ALERTS.filter((a) => a.severity === sev).length;
+  const count = (sev: string) => alerts.filter((a) => a.severity === sev).length;
 
   const filters: { id: FilterId; labelKey: I18nKey }[] = [
     { id: 'all', labelKey: 'filter_all' },
@@ -40,7 +34,7 @@ export function AlertsScreen({ t, lang, onBack }: AlertsScreenProps) {
 
   return (
     <div className="screen screen-fade">
-      <AppBar title={t('alerts')} onBack={onBack} trailing={
+      <AppBar title={t('alerts')} showBack trailing={
         <button className="appbar-action"><Icon name="filter" size={18} /></button>
       } />
 

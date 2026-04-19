@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, IBM_Plex_Mono } from 'next/font/google';
+import { Providers } from '@/components/providers/providers';
 import './globals.css';
 
 const inter = Inter({
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <body className={`${inter.variable} ${ibmPlexMono.variable}`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
