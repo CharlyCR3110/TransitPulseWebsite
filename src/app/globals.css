@@ -872,7 +872,7 @@ textarea {
   background: linear-gradient(135deg, oklch(24% 0.02 220), oklch(28% 0.015 220));
 }
 
-.minimap svg {
+.minimap > svg {
   position: absolute;
   inset: 0;
   width: 100%;
