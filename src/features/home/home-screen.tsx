@@ -7,7 +7,7 @@ import { MiniMap } from '@/components/transit/mini-map';
 import { NEARBY_STOPS } from '@/data/transit';
 import { useLang } from '@/components/providers/lang-provider';
 import { useArrivals } from '@/lib/hooks/use-arrivals';
-import { useAlerts } from '@/lib/hooks/use-alerts';
+import { useAlerts } from '@/features/alerts/use-alerts';
 import type { I18nKey } from '@/data/transit';
 
 export function HomeScreen() {

@@ -7,9 +7,8 @@ import { ConfidenceRing } from '@/components/transit/confidence-ring';
 import { RouteBadge } from '@/components/transit/route-badge';
 import { OccBars } from '@/components/transit/occ-bars';
 import { StatusChip } from '@/components/transit/status-chip';
-import { TRIP_OPTIONS, ALERTS } from '@/data/transit';
 import { useLang } from '@/components/providers/lang-provider';
-import { useTripOptions } from '@/lib/hooks/use-trip-options';
+import { useTripDetail } from './use-trip-detail';
 import type { I18nKey } from '@/data/transit';
 import type { BusStep } from '@/types/transit';
 
@@ -19,18 +18,21 @@ interface TripDetailScreenProps {
 
 export function TripDetailScreen({ tripId }: TripDetailScreenProps) {
   const { t, lang } = useLang();
-  const tripOptions = useTripOptions();
   const router = useRouter();
+  const { trip, relatedAlerts: related, loading } = useTripDetail(tripId);
 
-  const trip = tripOptions.find((r) => r.id === tripId) ?? TRIP_OPTIONS[0];
+  if (loading || !trip) {
+    return (
+      <div className="screen screen-fade">
+        <AppBar title="…" showBack />
+        <div className="empty">{t('searching')}</div>
+      </div>
+    );
+  }
+
   const confLabel: I18nKey = trip.confidence >= 0.9 ? 'reliable' : trip.confidence >= 0.8 ? 'moderate' : 'low';
   const arrivalTime = trip.steps[trip.steps.length - 1].time;
   const departTime = trip.steps[0].time;
-
-  const tripRoutes = new Set(
-    trip.steps.filter((s): s is BusStep => s.kind === 'bus').map((s) => s.route)
-  );
-  const related = ALERTS.filter((al) => al.routes.some((r) => tripRoutes.has(r))).slice(0, 2);
 
   return (
     <div className="screen screen-fade">
@@ -154,7 +156,10 @@ export function TripDetailScreen({ tripId }: TripDetailScreenProps) {
       )}
 
       <div style={{ padding: '8px 20px 20px' }}>
-        <button style={{ width: '100%', padding: '14px 20px', background: 'var(--primary)', color: 'var(--primary-contrast)', borderRadius: 'var(--r-md)', fontSize: 15, fontWeight: 600, letterSpacing: '-0.005em', boxShadow: 'var(--shadow-sm)' }}>
+        <button
+          onClick={() => router.push(`/trip/active?tripId=${tripId}`)}
+          style={{ width: '100%', padding: '14px 20px', background: 'var(--primary)', color: 'var(--primary-contrast)', borderRadius: 'var(--r-md)', fontSize: 15, fontWeight: 600, letterSpacing: '-0.005em', boxShadow: 'var(--shadow-sm)' }}
+        >
           {t('start_trip')}
         </button>
       </div>

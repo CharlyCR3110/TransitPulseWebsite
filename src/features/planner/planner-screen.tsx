@@ -1,33 +1,25 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AppBar } from '@/components/layout/app-bar';
 import { Icon } from '@/components/ui/icons';
 import { OccBars } from '@/components/transit/occ-bars';
 import { StatusChip } from '@/components/transit/status-chip';
 import { useLang } from '@/components/providers/lang-provider';
-import { useTripOptions } from '@/lib/hooks/use-trip-options';
+import { usePlannerSearch } from './use-planner-search';
 import type { I18nKey } from '@/data/transit';
 
 export function PlannerScreen() {
   const { t } = useLang();
-  const tripOptions = useTripOptions();
   const router = useRouter();
   const [sort, setSort] = useState<'fastest' | 'cheapest' | 'fewest'>('fastest');
   const [from, setFrom] = useState('San Pedro · UCR');
   const [to, setTo] = useState('Multiplaza Escazú');
-  const [searching, setSearching] = useState(false);
 
-  const sorted = useMemo(() => {
-    const arr = [...tripOptions];
-    if (sort === 'fastest') arr.sort((a, b) => a.minutes - b.minutes);
-    if (sort === 'cheapest') arr.sort((a, b) => a.price - b.price);
-    if (sort === 'fewest') arr.sort((a, b) => a.transfers - b.transfers || a.minutes - b.minutes);
-    return arr;
-  }, [tripOptions, sort]);
+  const { results: sorted, loading: searching, refresh } = usePlannerSearch(from, to, sort);
 
   const swap = () => { setFrom(to); setTo(from); };
-  const runSearch = () => { setSearching(true); setTimeout(() => setSearching(false), 700); };
+  const runSearch = () => { refresh(); };
 
   const sortTabs: { id: 'fastest' | 'cheapest' | 'fewest'; labelKey: I18nKey }[] = [
     { id: 'fastest', labelKey: 'fastest' },

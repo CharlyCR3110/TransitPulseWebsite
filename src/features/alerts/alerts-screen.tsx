@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { AppBar } from '@/components/layout/app-bar';
 import { Icon } from '@/components/ui/icons';
 import { useLang } from '@/components/providers/lang-provider';
-import { useAlerts } from '@/lib/hooks/use-alerts';
+import { useAlerts } from './use-alerts';
 import type { I18nKey } from '@/data/transit';
 
 type FilterId = 'all' | 'critical' | 'warn' | 'info';

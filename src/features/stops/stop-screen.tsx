@@ -7,8 +7,7 @@ import { LiveDot } from '@/components/transit/live-dot';
 import { MiniMap } from '@/components/transit/mini-map';
 import { ArrivalRow } from '@/components/transit/arrival-row';
 import { useLang } from '@/components/providers/lang-provider';
-import { useArrivals } from '@/lib/hooks/use-arrivals';
-import { useStop } from '@/lib/hooks/use-stop';
+import { useStopDetail } from './use-stop-detail';
 import type { I18nKey } from '@/data/transit';
 
 interface StopScreenProps {
@@ -17,8 +16,7 @@ interface StopScreenProps {
 
 export function StopScreen({ stopId }: StopScreenProps) {
   const { t, lang } = useLang();
-  const arrivals = useArrivals();
-  const stop = useStop(stopId);
+  const { detail, loading } = useStopDetail(stopId);
   const router = useRouter();
   const [updatedSec, setUpdatedSec] = useState(3);
 
@@ -26,6 +24,17 @@ export function StopScreen({ stopId }: StopScreenProps) {
     const iv = setInterval(() => setUpdatedSec((s) => s + 1), 1000);
     return () => clearInterval(iv);
   }, []);
+
+  if (loading || !detail) {
+    return (
+      <div className="screen screen-fade">
+        <AppBar title={t('stop_code')} showBack />
+        <div className="empty">{t('searching')}</div>
+      </div>
+    );
+  }
+
+  const { stop, arrivals } = detail;
 
   return (
     <div className="screen screen-fade">
