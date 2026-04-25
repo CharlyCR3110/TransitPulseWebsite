@@ -13,22 +13,23 @@ export function useTripDetail(tripId: string) {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
-    mockPlannerProvider.getTripDetail(tripId).then(async (detail) => {
+    void mockPlannerProvider.getTripDetail(tripId).then(async (detail) => {
       if (cancelled) return;
-      setTrip(detail);
-      if (detail) {
-        const routes = detail.steps
-          .filter((s): s is BusStep => s.kind === 'bus')
-          .map((s) => s.route);
-        const alerts = await mockAlertsProvider.getAlertsForRoutes(routes);
-        if (!cancelled) setRelatedAlerts(alerts.slice(0, 2));
+      if (!detail) {
+        setError('not-found');
+        setLoading(false);
+        return;
       }
+      setTrip(detail);
+      const routes = detail.steps
+        .filter((s): s is BusStep => s.kind === 'bus')
+        .map((s) => s.route);
+      const alerts = await mockAlertsProvider.getAlertsForRoutes(routes);
+      if (!cancelled) setRelatedAlerts(alerts.slice(0, 2));
       setLoading(false);
     }).catch(() => {
-      if (!cancelled) { setError('Failed to load trip'); setLoading(false); }
+      if (!cancelled) { setError('load-failed'); setLoading(false); }
     });
 
     return () => { cancelled = true; };

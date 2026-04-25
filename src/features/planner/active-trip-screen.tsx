@@ -37,7 +37,9 @@ export function ActiveTripScreen() {
     return (
       <div className="screen screen-fade">
         <AppBar title={t('start_trip')} showBack />
-        <div className="empty" style={{ color: 'var(--bad)' }}>Error loading trip</div>
+        <div className="empty" style={{ color: 'var(--bad)' }}>
+          {error === 'not-found' || !tripId ? t('trip_not_found') : t('trip_load_failed')}
+        </div>
       </div>
     );
   }
@@ -97,11 +99,11 @@ export function ActiveTripScreen() {
               {etaMinutes} <span style={{ fontSize: 16, fontWeight: 500 }}>{t('min')}</span>
             </div>
             {elapsedMin > 0 && (
-              <div style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>{elapsedMin} {t('min')} elapsed</div>
+              <div style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>{elapsedMin} {t('min')} {t('elapsed')}</div>
             )}
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 4 }}>Step</div>
+            <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 4 }}>{t('step')}</div>
             <div style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
               {currentStepIndex + 1}/{steps.length}
             </div>
@@ -113,7 +115,7 @@ export function ActiveTripScreen() {
       {/* Current step */}
       <div className="section" style={{ marginTop: 16 }}>
         <div className="section-head">
-          <span className="section-title">Now</span>
+          <span className="section-title">{t('now_label')}</span>
         </div>
         <div style={{
           background: 'var(--surface)', border: '2px solid var(--primary)', borderRadius: 'var(--r-md)',
@@ -152,7 +154,7 @@ export function ActiveTripScreen() {
       {nextStep && (
         <div className="section" style={{ marginTop: 8 }}>
           <div className="section-head">
-            <span className="section-title">Up next</span>
+            <span className="section-title">{t('up_next')}</span>
           </div>
           <div style={{
             background: 'var(--surface-2)', borderRadius: 'var(--r-md)', padding: '14px 16px',
@@ -217,7 +219,7 @@ export function ActiveTripScreen() {
               borderRadius: 'var(--r-md)', fontSize: 14, fontWeight: 600,
             }}
           >
-            Next step →
+            {t('next_step')} →
           </button>
         )}
         <button
@@ -229,7 +231,7 @@ export function ActiveTripScreen() {
             borderRadius: 'var(--r-md)', fontSize: 14, fontWeight: 600,
           }}
         >
-          {isLast ? 'End trip' : 'Cancel'}
+          {isLast ? t('end_trip') : t('cancel')}
         </button>
       </div>
     </div>

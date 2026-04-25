@@ -4,20 +4,28 @@ import { Icon } from '@/components/ui/icons';
 import { LiveDot } from '@/components/transit/live-dot';
 import { ArrivalRow } from '@/components/transit/arrival-row';
 import { MiniMap } from '@/components/transit/mini-map';
-import { NEARBY_STOPS } from '@/data/transit';
 import { useLang } from '@/components/providers/lang-provider';
+import { useStops } from '@/lib/hooks/use-stops';
 import { useArrivals } from '@/lib/hooks/use-arrivals';
 import { useAlerts } from '@/features/alerts/use-alerts';
 import type { I18nKey } from '@/data/transit';
 
 export function HomeScreen() {
   const { t, lang } = useLang();
-  const arrivals = useArrivals();
-  const { alertsCount } = useAlerts();
+  const { arrivals } = useArrivals();
+  const { alerts, alertsCount } = useAlerts();
+  const { stops: nearbyStops } = useStops();
   const router = useRouter();
 
   const hour = new Date().getHours();
   const gKey: I18nKey = hour < 12 ? 'greeting_morning' : hour < 19 ? 'greeting_afternoon' : 'greeting_evening';
+  const topAlert = alerts.find((alert) => alert.severity !== 'ok') ?? alerts[0];
+  const firstStopId = nearbyStops[0]?.id;
+
+  function openStopForRoute(route: string) {
+    const stop = nearbyStops.find((candidate) => candidate.routes.includes(route));
+    if (stop) router.push(`/stops/${stop.id}`);
+  }
 
   return (
     <div className="screen screen-fade">
@@ -53,7 +61,7 @@ export function HomeScreen() {
             <Icon name="alert" size={20} />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 600 }}>{alertsCount} {t('active_alerts').toLowerCase()}</div>
-              <div style={{ fontSize: 12, opacity: 0.85 }}>{t('alert_1_title')}</div>
+              {topAlert && <div style={{ fontSize: 12, opacity: 0.85 }}>{t(topAlert.titleKey as I18nKey)}</div>}
             </div>
             <Icon name="chevron" size={18} />
           </button>
@@ -70,16 +78,16 @@ export function HomeScreen() {
       <div className="section">
         <div className="section-head">
           <span className="section-title">{t('next_departures')}</span>
-          <button className="section-link" onClick={() => router.push('/stops/s1')}>{t('view_all')}</button>
+          <button className="section-link" onClick={() => firstStopId && router.push(`/stops/${firstStopId}`)}>{t('view_all')}</button>
         </div>
         <div className="card--flat">
           {arrivals.slice(0, 4).map((a) => (
-            <ArrivalRow key={a.id} a={a} t={t} lang={lang} onClick={() => router.push('/stops/s1')} />
+            <ArrivalRow key={a.id} a={a} t={t} lang={lang} onClick={() => openStopForRoute(a.route)} />
           ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
-          <span>{t('stop_1').toUpperCase()}</span>
-          <span>120 m</span>
+          <span>{nearbyStops[0] ? t(nearbyStops[0].nameKey as I18nKey).toUpperCase() : '...'}</span>
+          <span>{nearbyStops[0] ? `${nearbyStops[0].dist} m` : '...'}</span>
         </div>
       </div>
 
@@ -88,7 +96,7 @@ export function HomeScreen() {
           <span className="section-title">{t('nearby_stops')}</span>
         </div>
         <div className="stack">
-          {NEARBY_STOPS.map((s) => (
+          {nearbyStops.map((s) => (
             <button key={s.id} className="card--flat" onClick={() => router.push(`/stops/${s.id}`)} style={{ padding: '12px 14px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
               <div style={{ width: 40, height: 40, borderRadius: 'var(--r-sm)', background: 'var(--primary-weak)', color: 'var(--primary-strong)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
                 <Icon name="pin" size={18} />

@@ -16,20 +16,32 @@ interface StopScreenProps {
 
 export function StopScreen({ stopId }: StopScreenProps) {
   const { t, lang } = useLang();
-  const { detail, loading } = useStopDetail(stopId);
+  const { detail, loading, error } = useStopDetail(stopId);
   const router = useRouter();
-  const [updatedSec, setUpdatedSec] = useState(3);
+  const [updatedSec, setUpdatedSec] = useState(0);
 
   useEffect(() => {
-    const iv = setInterval(() => setUpdatedSec((s) => s + 1), 1000);
+    if (!detail) return;
+    const updateAge = () => setUpdatedSec(Math.max(0, Math.floor((Date.now() - detail.updatedAt) / 1000)));
+    updateAge();
+    const iv = setInterval(updateAge, 1000);
     return () => clearInterval(iv);
-  }, []);
+  }, [detail]);
 
-  if (loading || !detail) {
+  if (loading) {
     return (
       <div className="screen screen-fade">
         <AppBar title={t('stop_code')} showBack />
         <div className="empty">{t('searching')}</div>
+      </div>
+    );
+  }
+
+  if (error || !detail) {
+    return (
+      <div className="screen screen-fade">
+        <AppBar title={t('stop_code')} showBack />
+        <div className="empty" style={{ color: 'var(--bad)' }}>{t('stop_not_found')}</div>
       </div>
     );
   }
@@ -71,7 +83,13 @@ export function StopScreen({ stopId }: StopScreenProps) {
         </div>
         <div className="card--flat">
           {arrivals.map((a) => (
-            <ArrivalRow key={a.id} a={a} t={t} lang={lang} onClick={() => router.push('/planner/r1')} />
+            <ArrivalRow
+              key={a.id}
+              a={a}
+              t={t}
+              lang={lang}
+              onClick={() => router.push(`/planner?from=${encodeURIComponent(t(stop.nameKey as I18nKey))}&to=${encodeURIComponent(lang === 'es' ? a.destEs : a.destEn)}`)}
+            />
           ))}
         </div>
       </div>

@@ -1,13 +1,16 @@
-import { NEARBY_STOPS, INITIAL_ARRIVALS } from '@/data/transit';
+import { NEARBY_STOPS } from '@/data/transit';
 import type { StopsProvider, StopDetailDto } from '@/data/contracts/stops';
 import type { Stop } from '@/types/transit';
+import { mockArrivalsProvider } from './arrivals-provider';
 
 export const mockStopsProvider: StopsProvider = {
   async getStop(stopId: string): Promise<StopDetailDto | null> {
-    const stop = NEARBY_STOPS.find((s) => s.id === stopId) ?? NEARBY_STOPS[0];
+    const stop = NEARBY_STOPS.find((s) => s.id === stopId);
+    if (!stop) return null;
+
     return {
       stop,
-      arrivals: INITIAL_ARRIVALS,
+      arrivals: await mockArrivalsProvider.getArrivalsForStop(stopId),
       updatedAt: Date.now(),
     };
   },

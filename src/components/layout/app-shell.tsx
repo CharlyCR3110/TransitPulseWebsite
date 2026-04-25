@@ -51,7 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
-        <button className="topbar-action" onClick={() => setTweaksOpen((o) => !o)} aria-label="Settings">
+        <button className="topbar-action" onClick={() => setTweaksOpen((o) => !o)} aria-label={t('settings')}>
           <Icon name="settings" size={18} />
         </button>
       </header>

@@ -31,6 +31,6 @@ export interface ActiveTripDto {
 export interface PlannerProvider {
   searchTrips(input: PlannerSearchInput): Promise<TripOption[]>;
   getTripDetail(tripId: string): Promise<TripDetailDto | null>;
-  startTrip(tripId: string): Promise<ActiveTripDto>;
-  advanceStep(tripId: string, currentIndex: number): Promise<ActiveTripDto>;
+  startTrip(tripId: string): Promise<ActiveTripDto | null>;
+  advanceStep(tripId: string, currentIndex: number): Promise<ActiveTripDto | null>;
 }

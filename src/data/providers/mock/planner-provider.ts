@@ -18,13 +18,13 @@ export const mockPlannerProvider: PlannerProvider = {
 
   async getTripDetail(tripId: string): Promise<TripDetailDto | null> {
     await delay(0);
-    const trip = TRIP_OPTIONS.find((t) => t.id === tripId) ?? TRIP_OPTIONS[0];
-    return trip;
+    return TRIP_OPTIONS.find((t) => t.id === tripId) ?? null;
   },
 
-  async startTrip(tripId: string): Promise<ActiveTripDto> {
+  async startTrip(tripId: string): Promise<ActiveTripDto | null> {
     await delay(0);
-    const trip = TRIP_OPTIONS.find((t) => t.id === tripId) ?? TRIP_OPTIONS[0];
+    const trip = TRIP_OPTIONS.find((t) => t.id === tripId);
+    if (!trip) return null;
     return {
       tripId: trip.id,
       currentStepIndex: 0,
@@ -34,9 +34,10 @@ export const mockPlannerProvider: PlannerProvider = {
     };
   },
 
-  async advanceStep(tripId: string, currentIndex: number): Promise<ActiveTripDto> {
+  async advanceStep(tripId: string, currentIndex: number): Promise<ActiveTripDto | null> {
     await delay(0);
-    const trip = TRIP_OPTIONS.find((t) => t.id === tripId) ?? TRIP_OPTIONS[0];
+    const trip = TRIP_OPTIONS.find((t) => t.id === tripId);
+    if (!trip) return null;
     const next = Math.min(currentIndex + 1, trip.steps.length - 1);
     const remaining = trip.steps.slice(next).reduce((acc, s) => acc + (s.minutes ?? 0), 0);
     return {

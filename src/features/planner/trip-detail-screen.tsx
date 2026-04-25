@@ -10,7 +10,6 @@ import { StatusChip } from '@/components/transit/status-chip';
 import { useLang } from '@/components/providers/lang-provider';
 import { useTripDetail } from './use-trip-detail';
 import type { I18nKey } from '@/data/transit';
-import type { BusStep } from '@/types/transit';
 
 interface TripDetailScreenProps {
   tripId: string;
@@ -19,13 +18,22 @@ interface TripDetailScreenProps {
 export function TripDetailScreen({ tripId }: TripDetailScreenProps) {
   const { t, lang } = useLang();
   const router = useRouter();
-  const { trip, relatedAlerts: related, loading } = useTripDetail(tripId);
+  const { trip, relatedAlerts: related, loading, error } = useTripDetail(tripId);
 
-  if (loading || !trip) {
+  if (loading) {
     return (
       <div className="screen screen-fade">
         <AppBar title="…" showBack />
         <div className="empty">{t('searching')}</div>
+      </div>
+    );
+  }
+
+  if (error || !trip) {
+    return (
+      <div className="screen screen-fade">
+        <AppBar title={t('plan_trip')} showBack />
+        <div className="empty" style={{ color: 'var(--bad)' }}>{t('trip_not_found')}</div>
       </div>
     );
   }
