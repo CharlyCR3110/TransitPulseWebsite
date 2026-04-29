@@ -1,11 +1,7 @@
 import { apiClient } from '@/data/api/client';
 import { isNotFound } from '@/data/api/errors';
-import type { PlannerProvider, TripDetailDto } from '@/data/contracts/planner';
+import type { ActiveTripDto, PlannerProvider, TripDetailDto } from '@/data/contracts/planner';
 import type { TripOption } from '@/types/transit';
-
-const notImplemented = (method: string) => {
-  throw new Error(`api plannerProvider.${method} not implemented yet`);
-};
 
 export const plannerProvider: PlannerProvider = {
   searchTrips: ({ from, to, sort }) =>
@@ -25,6 +21,32 @@ export const plannerProvider: PlannerProvider = {
     }
   },
 
-  startTrip: () => notImplemented('startTrip'),
-  advanceStep: () => notImplemented('advanceStep'),
+  async startTrip(tripId) {
+    try {
+      return await apiClient.request<ActiveTripDto>(
+        'POST',
+        `/planner/trips/${encodeURIComponent(tripId)}/start`,
+        { auth: 'optional' },
+      );
+    } catch (err) {
+      if (isNotFound(err)) return null;
+      throw err;
+    }
+  },
+
+  async advanceStep(activeTripId, currentIndex) {
+    try {
+      return await apiClient.request<ActiveTripDto, { currentStepIndex: number; activeTripId: string }>(
+        'POST',
+        `/planner/trips/${encodeURIComponent(activeTripId)}/advance`,
+        {
+          auth: 'optional',
+          body: { currentStepIndex: currentIndex, activeTripId },
+        },
+      );
+    } catch (err) {
+      if (isNotFound(err)) return null;
+      throw err;
+    }
+  },
 };

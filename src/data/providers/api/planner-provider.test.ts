@@ -36,8 +36,36 @@ describe('api plannerProvider', () => {
     await expect(plannerProvider.getTripDetail('x')).rejects.toBe(err);
   });
 
-  it('startTrip and advanceStep still throw not-implemented (Step 7)', () => {
-    expect(() => plannerProvider.startTrip('t1')).toThrow(/not implemented yet/);
-    expect(() => plannerProvider.advanceStep('t1', 0)).toThrow(/not implemented yet/);
+  it('startTrip POSTs to /planner/trips/{id}/start with optional auth', async () => {
+    const spy = vi.spyOn(apiClient, 'request').mockResolvedValue({});
+    await plannerProvider.startTrip('trip 1/x');
+    expect(spy).toHaveBeenCalledWith('POST', '/planner/trips/trip%201%2Fx/start', { auth: 'optional' });
+  });
+
+  it('startTrip maps not_found to null', async () => {
+    vi.spyOn(apiClient, 'request').mockRejectedValue(
+      new ApiError({ status: 404, code: 'not_found', message: 'gone' }),
+    );
+    expect(await plannerProvider.startTrip('nope')).toBeNull();
+  });
+
+  it('advanceStep POSTs to /planner/trips/{activeTripId}/advance with body', async () => {
+    const spy = vi.spyOn(apiClient, 'request').mockResolvedValue({});
+    await plannerProvider.advanceStep('active-uuid', 3);
+    expect(spy).toHaveBeenCalledWith(
+      'POST',
+      '/planner/trips/active-uuid/advance',
+      {
+        auth: 'optional',
+        body: { currentStepIndex: 3, activeTripId: 'active-uuid' },
+      },
+    );
+  });
+
+  it('advanceStep maps not_found to null', async () => {
+    vi.spyOn(apiClient, 'request').mockRejectedValue(
+      new ApiError({ status: 404, code: 'not_found', message: 'gone' }),
+    );
+    expect(await plannerProvider.advanceStep('missing', 0)).toBeNull();
   });
 });

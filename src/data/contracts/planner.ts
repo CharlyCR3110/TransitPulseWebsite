@@ -22,6 +22,8 @@ export interface TripDetailDto {
 
 export interface ActiveTripDto {
   tripId: string;
+  /** Backend-assigned id for this in-progress trip; required for advanceStep. */
+  activeTripId: string;
   currentStepIndex: number;
   steps: TripStep[];
   etaMinutes: number;
@@ -32,5 +34,5 @@ export interface PlannerProvider {
   searchTrips(input: PlannerSearchInput): Promise<TripOption[]>;
   getTripDetail(tripId: string): Promise<TripDetailDto | null>;
   startTrip(tripId: string): Promise<ActiveTripDto | null>;
-  advanceStep(tripId: string, currentIndex: number): Promise<ActiveTripDto | null>;
+  advanceStep(activeTripId: string, currentIndex: number): Promise<ActiveTripDto | null>;
 }
