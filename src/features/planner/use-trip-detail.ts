@@ -1,38 +1,44 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { plannerProvider, alertsProvider } from '@/data/providers';
-import type { TripDetailDto } from '@/data/contracts/planner';
+import { qk } from '@/data/api/queryKeys';
 import type { Alert, BusStep } from '@/types/transit';
 
+const EMPTY_ALERTS: Alert[] = [];
+
 export function useTripDetail(tripId: string) {
-  const [trip, setTrip] = useState<TripDetailDto | null>(null);
-  const [relatedAlerts, setRelatedAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const tripQuery = useQuery({
+    queryKey: qk.planner.trip(tripId),
+    queryFn: () => plannerProvider.getTripDetail(tripId),
+    enabled: tripId.length > 0,
+  });
 
-  useEffect(() => {
-    let cancelled = false;
+  const routes = useMemo(() => {
+    const detail = tripQuery.data;
+    if (!detail) return [] as string[];
+    return detail.steps
+      .filter((s): s is BusStep => s.kind === 'bus')
+      .map((s) => s.route);
+  }, [tripQuery.data]);
 
-    void plannerProvider.getTripDetail(tripId).then(async (detail) => {
-      if (cancelled) return;
-      if (!detail) {
-        setError('not-found');
-        setLoading(false);
-        return;
-      }
-      setTrip(detail);
-      const routes = detail.steps
-        .filter((s): s is BusStep => s.kind === 'bus')
-        .map((s) => s.route);
-      const alerts = await alertsProvider.getAlertsForRoutes(routes);
-      if (!cancelled) setRelatedAlerts(alerts.slice(0, 2));
-      setLoading(false);
-    }).catch(() => {
-      if (!cancelled) { setError('load-failed'); setLoading(false); }
-    });
+  const alertsQuery = useQuery({
+    queryKey: qk.alerts.byRoutes(routes),
+    queryFn: () => alertsProvider.getAlertsForRoutes(routes),
+    enabled: routes.length > 0,
+  });
 
-    return () => { cancelled = true; };
-  }, [tripId]);
+  const trip = tripQuery.data ?? null;
+  const error = tripQuery.error
+    ? 'load-failed'
+    : !tripQuery.isLoading && trip === null
+      ? 'not-found'
+      : null;
 
-  return { trip, relatedAlerts, loading, error };
+  return {
+    trip,
+    relatedAlerts: (alertsQuery.data ?? EMPTY_ALERTS).slice(0, 2),
+    loading: tripQuery.isLoading,
+    error,
+  };
 }
