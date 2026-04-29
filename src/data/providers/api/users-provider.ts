@@ -1,9 +1,7 @@
+import { apiClient } from '@/data/api/client';
 import type { UsersProvider } from '@/data/contracts/users';
-
-const notImplemented = (method: string) => {
-  throw new Error(`api usersProvider.${method} not implemented yet`);
-};
+import type { UserProfileDto } from '@/data/contracts/users';
 
 export const usersProvider: UsersProvider = {
-  me: () => notImplemented('me'),
+  me: () => apiClient.request<UserProfileDto>('GET', '/users/me', { auth: 'required' }),
 };

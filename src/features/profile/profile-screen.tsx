@@ -1,11 +1,14 @@
 'use client';
+import Link from 'next/link';
 import { Icon } from '@/components/ui/icons';
 import { NEARBY_STOPS } from '@/data/transit';
 import { useLang } from '@/components/providers/lang-provider';
+import { useAuth } from '@/components/providers/auth-provider';
 import type { I18nKey } from '@/data/transit';
 
 export function ProfileScreen() {
   const { t, lang } = useLang();
+  const { status, user, logout } = useAuth();
 
   const stats = [
     { v: '42', lEs: 'Viajes', lEn: 'Trips' },
@@ -14,14 +17,44 @@ export function ProfileScreen() {
     { v: '94%', lEs: 'A tiempo', lEn: 'On time' },
   ];
 
+  const greeting =
+    status === 'authenticated' && user
+      ? user.displayName
+      : status === 'loading'
+        ? lang === 'es' ? 'Cargando…' : 'Loading…'
+        : lang === 'es' ? 'Invitado' : 'Guest';
+
+  const subline =
+    status === 'authenticated' && user
+      ? user.email
+      : lang === 'es' ? 'Inicia sesión para guardar viajes y reportar' : 'Sign in to save trips and report';
+
   return (
     <div className="screen screen-fade">
       <div className="hero">
         <div className="hero-brand">
           <div className="wordmark">Transit<em>Pulse</em></div>
         </div>
-        <h2 className="hero-greeting">Ana Castro</h2>
-        <p className="hero-sub">{lang === 'es' ? 'Commuter · San Pedro' : 'Commuter · San Pedro'}</p>
+        <h2 className="hero-greeting">{greeting}</h2>
+        <p className="hero-sub">{subline}</p>
+        {status === 'unauthenticated' && (
+          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+            <Link href="/login" className="btn--primary" style={{ padding: '10px 14px', borderRadius: 'var(--r-sm)' }}>
+              {lang === 'es' ? 'Iniciar sesión' : 'Sign in'}
+            </Link>
+            <Link href="/register" style={{ padding: '10px 14px', borderRadius: 'var(--r-sm)', border: '1px solid var(--line)' }}>
+              {lang === 'es' ? 'Crear cuenta' : 'Register'}
+            </Link>
+          </div>
+        )}
+        {status === 'authenticated' && (
+          <button
+            onClick={logout}
+            style={{ marginTop: 12, padding: '8px 12px', borderRadius: 'var(--r-sm)', border: '1px solid var(--line)', background: 'transparent', color: 'var(--text-2)', fontSize: 13 }}
+          >
+            {lang === 'es' ? 'Cerrar sesión' : 'Sign out'}
+          </button>
+        )}
       </div>
 
       <div className="section">
