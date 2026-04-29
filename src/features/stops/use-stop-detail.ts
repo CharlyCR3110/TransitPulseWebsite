@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { mockStopsProvider } from '@/data/providers/mock';
+import { stopsProvider } from '@/data/providers';
 import type { StopDetailDto } from '@/data/contracts/stops';
 
 export function useStopDetail(stopId: string) {
@@ -12,7 +12,7 @@ export function useStopDetail(stopId: string) {
     setLoading(true);
     setError(null);
     try {
-      const data = await mockStopsProvider.getStop(stopId);
+      const data = await stopsProvider.getStop(stopId);
       setDetail(data);
     } catch {
       setError('Failed to load stop');

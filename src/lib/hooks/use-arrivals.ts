@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { mockArrivalsProvider } from '@/data/providers/mock';
+import { arrivalsProvider } from '@/data/providers';
 import type { Arrival } from '@/types/transit';
 
 export function useArrivals() {
@@ -10,7 +10,7 @@ export function useArrivals() {
   useEffect(() => {
     let cancelled = false;
 
-    void mockArrivalsProvider.getHomeArrivals().then((data) => {
+    void arrivalsProvider.getHomeArrivals().then((data) => {
       if (cancelled) return;
       setArrivals(data);
       setLoading(false);

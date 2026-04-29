@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { mockPlannerProvider } from '@/data/providers/mock';
+import { plannerProvider } from '@/data/providers';
 import type { SortMode } from '@/data/contracts/planner';
 import type { TripOption } from '@/types/transit';
 
@@ -13,7 +13,7 @@ export function usePlannerSearch(from: string, to: string, sort: SortMode) {
     setLoading(true);
     setError(null);
     try {
-      const data = await mockPlannerProvider.searchTrips({ from, to, sort });
+      const data = await plannerProvider.searchTrips({ from, to, sort });
       setResults(data);
     } catch {
       setError('Failed to load trip options');

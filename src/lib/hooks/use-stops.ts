@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { mockStopsProvider } from '@/data/providers/mock';
+import { stopsProvider } from '@/data/providers';
 import type { Stop } from '@/types/transit';
 
 export function useStops() {
@@ -10,7 +10,7 @@ export function useStops() {
   useEffect(() => {
     let cancelled = false;
 
-    void mockStopsProvider.getAllStops().then((data) => {
+    void stopsProvider.getAllStops().then((data) => {
       if (cancelled) return;
       setStops(data);
       setLoading(false);

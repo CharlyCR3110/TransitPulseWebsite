@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { mockAlertsProvider } from '@/data/providers/mock';
+import { alertsProvider } from '@/data/providers';
 import type { Alert } from '@/types/transit';
 
 export function useAlerts() {
@@ -8,7 +8,7 @@ export function useAlerts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    mockAlertsProvider.getAlerts().then((data) => {
+    alertsProvider.getAlerts().then((data) => {
       setAlerts(data);
       setLoading(false);
     });
