@@ -1,27 +1,19 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { stopsProvider } from '@/data/providers';
-import type { StopDetailDto } from '@/data/contracts/stops';
+import { qk } from '@/data/api/queryKeys';
 
 export function useStopDetail(stopId: string) {
-  const [detail, setDetail] = useState<StopDetailDto | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const query = useQuery({
+    queryKey: qk.stops.byId(stopId),
+    queryFn: () => stopsProvider.getStop(stopId),
+    enabled: stopId.length > 0,
+  });
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await stopsProvider.getStop(stopId);
-      setDetail(data);
-    } catch {
-      setError('Failed to load stop');
-    } finally {
-      setLoading(false);
-    }
-  }, [stopId]);
-
-  useEffect(() => { load(); }, [load]);
-
-  return { detail, loading, error, refresh: load };
+  return {
+    detail: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error ? 'Failed to load stop' : null,
+    refresh: () => query.refetch(),
+  };
 }

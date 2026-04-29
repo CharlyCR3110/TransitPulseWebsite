@@ -1,0 +1,26 @@
+import type { PlannerSearchInput } from '@/data/contracts/planner';
+
+export const qk = {
+  planner: {
+    all: ['planner'] as const,
+    search: (input: PlannerSearchInput) => ['planner', 'search', input] as const,
+    trip: (tripId: string) => ['planner', 'trip', tripId] as const,
+    activeTrip: (tripId: string) => ['planner', 'activeTrip', tripId] as const,
+  },
+  stops: {
+    all: ['stops'] as const,
+    list: () => ['stops', 'list'] as const,
+    byId: (stopId: string) => ['stops', stopId] as const,
+  },
+  alerts: {
+    all: () => ['alerts'] as const,
+    byRoutes: (routes: readonly string[]) => ['alerts', 'byRoutes', [...routes].sort()] as const,
+  },
+  arrivals: {
+    home: () => ['arrivals', 'home'] as const,
+    byStop: (stopId: string) => ['arrivals', 'stops', stopId] as const,
+  },
+  users: {
+    me: () => ['users', 'me'] as const,
+  },
+} as const;

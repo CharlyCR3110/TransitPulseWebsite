@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { mockPlannerProvider } from '@/data/providers/mock';
-import { mockAlertsProvider } from '@/data/providers/mock';
+import { plannerProvider, alertsProvider } from '@/data/providers';
 import type { TripDetailDto } from '@/data/contracts/planner';
 import type { Alert, BusStep } from '@/types/transit';
 
@@ -14,7 +13,7 @@ export function useTripDetail(tripId: string) {
   useEffect(() => {
     let cancelled = false;
 
-    void mockPlannerProvider.getTripDetail(tripId).then(async (detail) => {
+    void plannerProvider.getTripDetail(tripId).then(async (detail) => {
       if (cancelled) return;
       if (!detail) {
         setError('not-found');
@@ -25,7 +24,7 @@ export function useTripDetail(tripId: string) {
       const routes = detail.steps
         .filter((s): s is BusStep => s.kind === 'bus')
         .map((s) => s.route);
-      const alerts = await mockAlertsProvider.getAlertsForRoutes(routes);
+      const alerts = await alertsProvider.getAlertsForRoutes(routes);
       if (!cancelled) setRelatedAlerts(alerts.slice(0, 2));
       setLoading(false);
     }).catch(() => {

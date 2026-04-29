@@ -9,6 +9,7 @@ import { OccBars } from '@/components/transit/occ-bars';
 import { StatusChip } from '@/components/transit/status-chip';
 import { useLang } from '@/components/providers/lang-provider';
 import { useTripDetail } from './use-trip-detail';
+import { formatEmittedAt } from '@/features/alerts/format-emitted-at';
 import type { I18nKey } from '@/data/transit';
 
 interface TripDetailScreenProps {
@@ -153,7 +154,7 @@ export function TripDetailScreen({ tripId }: TripDetailScreenProps) {
                 <div>
                   <div className="alert-head">
                     <div className="alert-title">{t(al.titleKey as I18nKey)}</div>
-                    <div className="alert-time">{al.time}</div>
+                    <div className="alert-time">{formatEmittedAt(al.emittedAt, lang)}</div>
                   </div>
                   <div className="alert-body">{t(al.bodyKey as I18nKey)}</div>
                 </div>

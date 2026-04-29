@@ -1,25 +1,19 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { stopsProvider } from '@/data/providers';
+import { qk } from '@/data/api/queryKeys';
 import type { Stop } from '@/types/transit';
 
+const EMPTY: Stop[] = [];
+
 export function useStops() {
-  const [stops, setStops] = useState<Stop[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void stopsProvider.getAllStops().then((data) => {
-      if (cancelled) return;
-      setStops(data);
-      setLoading(false);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return { stops, loading };
+  const query = useQuery({
+    queryKey: qk.stops.list(),
+    queryFn: () => stopsProvider.getAllStops(),
+  });
+  return {
+    stops: query.data ?? EMPTY,
+    loading: query.isLoading,
+    error: query.error,
+  };
 }

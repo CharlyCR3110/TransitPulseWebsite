@@ -30,7 +30,8 @@ export interface Alert {
   severity: AlertSeverity;
   titleKey: string;
   bodyKey: string;
-  time: string;
+  /** ISO 8601 timestamp from backend; format for display via formatRelative(emittedAt). */
+  emittedAt: string;
   routes: string[];
 }
 

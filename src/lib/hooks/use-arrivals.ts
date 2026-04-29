@@ -1,32 +1,20 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { arrivalsProvider } from '@/data/providers';
+import { qk } from '@/data/api/queryKeys';
 import type { Arrival } from '@/types/transit';
 
+const EMPTY: Arrival[] = [];
+
 export function useArrivals() {
-  const [arrivals, setArrivals] = useState<Arrival[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void arrivalsProvider.getHomeArrivals().then((data) => {
-      if (cancelled) return;
-      setArrivals(data);
-      setLoading(false);
-    });
-
-    const iv = setInterval(() => {
-      setArrivals((prev) =>
-        prev.map((a) => ({ ...a, etaSec: a.etaSec > 0 ? Math.max(0, a.etaSec - 1) : 1800 }))
-      );
-    }, 1000);
-
-    return () => {
-      cancelled = true;
-      clearInterval(iv);
-    };
-  }, []);
-
-  return { arrivals, loading };
+  const query = useQuery({
+    queryKey: qk.arrivals.home(),
+    queryFn: () => arrivalsProvider.getHomeArrivals(),
+    refetchInterval: 15_000,
+  });
+  return {
+    arrivals: query.data ?? EMPTY,
+    loading: query.isLoading,
+    error: query.error,
+  };
 }

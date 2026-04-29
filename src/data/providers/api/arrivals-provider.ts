@@ -1,10 +1,9 @@
+import { apiClient } from '@/data/api/client';
 import type { ArrivalsProvider } from '@/data/contracts/arrivals';
-
-const notImplemented = (method: string) => {
-  throw new Error(`api arrivalsProvider.${method} not implemented yet`);
-};
+import type { Arrival } from '@/types/transit';
 
 export const arrivalsProvider: ArrivalsProvider = {
-  getHomeArrivals: () => notImplemented('getHomeArrivals'),
-  getArrivalsForStop: () => notImplemented('getArrivalsForStop'),
+  getHomeArrivals: () => apiClient.request<Arrival[]>('GET', '/arrivals/home'),
+  getArrivalsForStop: (stopId) =>
+    apiClient.request<Arrival[]>('GET', `/arrivals/stops/${encodeURIComponent(stopId)}`),
 };

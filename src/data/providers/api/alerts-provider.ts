@@ -1,10 +1,11 @@
+import { apiClient } from '@/data/api/client';
 import type { AlertsProvider } from '@/data/contracts/alerts';
-
-const notImplemented = (method: string) => {
-  throw new Error(`api alertsProvider.${method} not implemented yet`);
-};
+import type { Alert } from '@/types/transit';
 
 export const alertsProvider: AlertsProvider = {
-  getAlerts: () => notImplemented('getAlerts'),
-  getAlertsForRoutes: () => notImplemented('getAlertsForRoutes'),
+  getAlerts: () => apiClient.request<Alert[]>('GET', '/alerts'),
+  getAlertsForRoutes: (routes) =>
+    apiClient.request<Alert[]>('GET', '/alerts', {
+      query: { routeIds: routes.join(',') },
+    }),
 };

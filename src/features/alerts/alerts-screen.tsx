@@ -4,12 +4,13 @@ import { AppBar } from '@/components/layout/app-bar';
 import { Icon } from '@/components/ui/icons';
 import { useLang } from '@/components/providers/lang-provider';
 import { useAlerts } from './use-alerts';
+import { formatEmittedAt } from './format-emitted-at';
 import type { I18nKey } from '@/data/transit';
 
 type FilterId = 'all' | 'critical' | 'warn' | 'info';
 
 export function AlertsScreen() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { alerts } = useAlerts();
   const [filter, setFilter] = useState<FilterId>('all');
 
@@ -72,7 +73,7 @@ export function AlertsScreen() {
               <div>
                 <div className="alert-head">
                   <div className="alert-title">{t(al.titleKey as I18nKey)}</div>
-                  <div className="alert-time">{al.time}</div>
+                  <div className="alert-time">{formatEmittedAt(al.emittedAt, lang)}</div>
                 </div>
                 <div className="alert-body">{t(al.bodyKey as I18nKey)}</div>
                 <div className="alert-routes">

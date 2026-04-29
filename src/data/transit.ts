@@ -130,11 +130,13 @@ export const NEARBY_STOPS: Stop[] = [
   { id: 's3', nameKey: 'stop_3', addrKey: 'stop_3_addr', dist: 1200, live: false, routes: ['201', '205', '207'] },
 ];
 
+const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
+
 export const ALERTS: Alert[] = [
-  { id: 'al1', severity: 'bad', titleKey: 'alert_1_title', bodyKey: 'alert_1_body', time: '12 min', routes: ['100', '55', '44'] },
-  { id: 'al2', severity: 'warn', titleKey: 'alert_2_title', bodyKey: 'alert_2_body', time: '38 min', routes: ['T1'] },
-  { id: 'al3', severity: 'warn', titleKey: 'alert_3_title', bodyKey: 'alert_3_body', time: '2 h', routes: ['302'] },
-  { id: 'al4', severity: 'ok', titleKey: 'alert_4_title', bodyKey: 'alert_4_body', time: '4 h', routes: ['T2'] },
+  { id: 'al1', severity: 'bad', titleKey: 'alert_1_title', bodyKey: 'alert_1_body', emittedAt: minutesAgo(12), routes: ['100', '55', '44'] },
+  { id: 'al2', severity: 'warn', titleKey: 'alert_2_title', bodyKey: 'alert_2_body', emittedAt: minutesAgo(38), routes: ['T1'] },
+  { id: 'al3', severity: 'warn', titleKey: 'alert_3_title', bodyKey: 'alert_3_body', emittedAt: minutesAgo(120), routes: ['302'] },
+  { id: 'al4', severity: 'ok', titleKey: 'alert_4_title', bodyKey: 'alert_4_body', emittedAt: minutesAgo(240), routes: ['T2'] },
 ];
 
 export const TRIP_OPTIONS: TripOption[] = [
