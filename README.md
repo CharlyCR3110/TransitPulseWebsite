@@ -34,3 +34,57 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Frontend ↔ Backend integration
+
+This frontend is wired to the FastAPI backend in `TransitPulseBackend` via a thin provider layer. All data calls go through `src/data/providers/index.ts`, which picks `mock` or `api` implementations at build time.
+
+### Environment
+
+Copy `.env.example` to `.env.local`:
+
+```
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api/v1
+# NEXT_PUBLIC_USE_MOCKS=true   # uncomment to develop without a backend
+```
+
+- `NEXT_PUBLIC_API_BASE_URL` must end in `/api/v1` (no trailing slash).
+- `NEXT_PUBLIC_USE_MOCKS=true` swaps every provider for an in-memory mock — useful for offline UI work. Default (unset/false) routes through `apiClient`.
+
+### Local quickstart
+
+```sh
+# in TransitPulseBackend
+docker compose up -d
+# (run migrations + seed per backend instructions)
+
+# in TransitPulseWebsite
+cp .env.example .env.local
+npm install
+npm run dev          # http://localhost:3000
+```
+
+### Type generation (`npm run gen:api`)
+
+OpenAPI types are generated from the backend's live `/openapi.json` into `src/data/api/schema.ts` (committed):
+
+```sh
+npm run gen:api               # reads NEXT_PUBLIC_API_BASE_URL, hits {base}/openapi.json
+npm run gen:api:from-file     # reads ./openapi.json (offline)
+```
+
+Re-run after any backend schema change so the build catches drift.
+
+### Auth model
+
+- Bearer JWT in `localStorage['transitpulse.auth.token']` (24 h, no refresh).
+- The single `<AuthProvider>` (in `src/components/providers/auth-provider.tsx`) handles bootstrap, login, register, and listens for the `auth:expired` window event raised by the React Query cache on any 401-class response.
+
+### Smoke test
+
+See `docs/smoke.md` for the manual end-to-end checklist used before each release.
+
+### Guardrails
+
+- ESLint rule `no-restricted-imports` (in `eslint.config.mjs`) blocks named imports of `ALERTS`, `NEARBY_STOPS`, `INITIAL_ARRIVALS`, `TRIP_OPTIONS` from `@/data/transit` outside the mock providers, so app code can never bypass the provider switch.
+- `npm test` covers the apiClient, every provider, and the AuthProvider state machine.
