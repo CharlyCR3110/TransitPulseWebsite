@@ -47,7 +47,10 @@ function writeToken(token: string | null): void {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [state, setState] = useState<AuthState>({ status: 'loading', user: null });
+  const [state, setState] = useState<AuthState>(() => {
+    if (readToken()) return { status: 'loading', user: null };
+    return { status: 'unauthenticated', user: null };
+  });
 
   const logout = useCallback(() => {
     writeToken(null);
@@ -57,12 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [router, queryClient]);
 
   useEffect(() => {
+    if (state.status !== 'loading') return;
     let cancelled = false;
-    const token = readToken();
-    if (!token) {
-      setState({ status: 'unauthenticated', user: null });
-      return;
-    }
     void usersProvider
       .me()
       .then((user) => {
@@ -73,15 +72,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (cancelled) return;
         if (isApiError(err) && (err.code === 'auth_required' || err.status === 401)) {
           writeToken(null);
-          setState({ status: 'unauthenticated', user: null });
-        } else {
-          setState({ status: 'unauthenticated', user: null });
         }
+        setState({ status: 'unauthenticated', user: null });
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [state.status]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

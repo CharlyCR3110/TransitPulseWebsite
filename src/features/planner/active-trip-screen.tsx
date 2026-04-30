@@ -7,6 +7,7 @@ import { RouteBadge } from '@/components/transit/route-badge';
 import { StatusChip } from '@/components/transit/status-chip';
 import { useLang } from '@/components/providers/lang-provider';
 import { useActiveTrip } from './use-active-trip';
+import { ReportButton } from '@/components/reports/report-button';
 import type { BusStep, WalkStep, TransferStep } from '@/types/transit';
 
 export function ActiveTripScreen() {
@@ -208,6 +209,13 @@ export function ActiveTripScreen() {
           })}
         </div>
       </div>
+
+      {/* Report */}
+      {currentStep.kind === 'bus' && (
+        <div style={{ padding: '8px 20px 0', display: 'flex', justifyContent: 'center' }}>
+          <ReportButton routeId={(currentStep as BusStep).route} />
+        </div>
+      )}
 
       {/* Actions */}
       <div style={{ padding: '8px 20px 24px', display: 'flex', gap: 10 }}>

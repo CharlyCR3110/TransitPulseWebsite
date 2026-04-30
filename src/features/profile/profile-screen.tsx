@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { Icon } from '@/components/ui/icons';
-import { NEARBY_STOPS } from '@/data/transit';
+import { useStops } from '@/lib/hooks/use-stops';
 import { useLang } from '@/components/providers/lang-provider';
 import { useAuth } from '@/components/providers/auth-provider';
 import type { I18nKey } from '@/data/transit';
@@ -9,6 +9,7 @@ import type { I18nKey } from '@/data/transit';
 export function ProfileScreen() {
   const { t, lang } = useLang();
   const { status, user, logout } = useAuth();
+  const { stops } = useStops();
 
   const stats = [
     { v: '42', lEs: 'Viajes', lEn: 'Trips' },
@@ -62,7 +63,7 @@ export function ProfileScreen() {
           <span className="section-title">{t('favorites')}</span>
         </div>
         <div className="stack">
-          {NEARBY_STOPS.slice(0, 2).map((s) => (
+          {stops.slice(0, 2).map((s) => (
             <div key={s.id} className="card--flat" style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 36, height: 36, borderRadius: 'var(--r-sm)', background: 'var(--warn-weak)', color: 'var(--warn-ink)', display: 'grid', placeItems: 'center' }}>
                 <Icon name="star" size={16} />

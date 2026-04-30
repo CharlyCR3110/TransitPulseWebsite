@@ -8,6 +8,7 @@ import { MiniMap } from '@/components/transit/mini-map';
 import { ArrivalRow } from '@/components/transit/arrival-row';
 import { useLang } from '@/components/providers/lang-provider';
 import { useStopDetail } from './use-stop-detail';
+import { ReportButton } from '@/components/reports/report-button';
 import type { I18nKey } from '@/data/transit';
 
 interface StopScreenProps {
@@ -92,6 +93,10 @@ export function StopScreen({ stopId }: StopScreenProps) {
             />
           ))}
         </div>
+      </div>
+
+      <div style={{ padding: '0 20px 12px', display: 'flex', justifyContent: 'center' }}>
+        <ReportButton stopId={stop.id} />
       </div>
 
       <div style={{ padding: '0 20px 20px', fontSize: 11, color: 'var(--text-3)', textAlign: 'center', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
