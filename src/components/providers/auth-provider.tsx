@@ -59,6 +59,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.replace('/login');
   }, [router, queryClient]);
 
+  const handleSessionExpired = useCallback(() => {
+    writeToken(null);
+    queryClient.clear();
+    setState({ status: 'unauthenticated', user: null });
+    router.replace('/login?reason=session-expired');
+  }, [router, queryClient]);
+
   useEffect(() => {
     if (state.status !== 'loading') return;
     let cancelled = false;
@@ -82,10 +89,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const handler = () => logout();
+    const handler = () => handleSessionExpired();
     window.addEventListener(AUTH_EXPIRED_EVENT, handler);
     return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handler);
-  }, [logout]);
+  }, [handleSessionExpired]);
 
   const login = useCallback(async (input: LoginInput) => {
     const token = await authProvider.login(input);

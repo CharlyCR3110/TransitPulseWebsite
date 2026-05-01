@@ -12,4 +12,11 @@ describe('api usersProvider', () => {
     await usersProvider.me();
     expect(spy).toHaveBeenCalledWith('GET', '/users/me', { auth: 'required' });
   });
+
+  it('stats GETs /users/me/stats with auth: required', async () => {
+    const spy = vi.spyOn(apiClient, 'request').mockResolvedValue({ trips: 0 });
+    const result = await usersProvider.stats();
+    expect(spy).toHaveBeenCalledWith('GET', '/users/me/stats', { auth: 'required' });
+    expect(result).toEqual({ trips: 0 });
+  });
 });

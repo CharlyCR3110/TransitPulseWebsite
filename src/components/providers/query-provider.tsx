@@ -6,17 +6,26 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
-import { isAuthRequired, isNotFound } from '@/data/api/errors';
+import { isApiError, isAuthRequired, isNotFound } from '@/data/api/errors';
+import { captureException } from '@/lib/observability';
 
 export const AUTH_EXPIRED_EVENT = 'auth:expired';
 
 export function createQueryClient(): QueryClient {
   return new QueryClient({
     queryCache: new QueryCache({
-      onError: (error) => {
+      onError: (error, query) => {
         if (typeof window === 'undefined') return;
         if (isAuthRequired(error)) {
           window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
+          return;
+        }
+        if (isApiError(error) && error.status >= 500) {
+          captureException(error, { queryKey: query.queryKey });
+          return;
+        }
+        if (!isApiError(error)) {
+          captureException(error, { queryKey: query.queryKey });
         }
       },
     }),

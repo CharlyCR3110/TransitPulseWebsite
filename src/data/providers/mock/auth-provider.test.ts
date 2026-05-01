@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ApiError } from '@/data/api/errors';
 import { authProvider } from './auth-provider';
 import { usersProvider } from './users-provider';
-import { reportsProvider } from './reports-provider';
+import { reportsProvider, resetMockReports } from './reports-provider';
 import { resetMockAuthStore } from './auth-store';
 
 beforeEach(() => {
   resetMockAuthStore();
+  resetMockReports();
 });
 
 describe('mock authProvider', () => {
@@ -47,6 +48,24 @@ describe('mock usersProvider', () => {
     await authProvider.login({ email: 'a@b.c', password: 'pw12345!' });
     const me = await usersProvider.me();
     expect(me.email).toBe('a@b.c');
+  });
+
+  it('stats throws 401 with no current session', async () => {
+    await expect(usersProvider.stats()).rejects.toMatchObject({ status: 401, code: 'auth_required' });
+  });
+
+  it('stats returns 0 trips for new user', async () => {
+    await authProvider.register({ email: 'a@b.c', password: 'pw12345!', displayName: 'Ana' });
+    await authProvider.login({ email: 'a@b.c', password: 'pw12345!' });
+    await expect(usersProvider.stats()).resolves.toEqual({ trips: 0 });
+  });
+
+  it('stats counts reports submitted by current user', async () => {
+    await authProvider.register({ email: 'a@b.c', password: 'pw12345!', displayName: 'Ana' });
+    await authProvider.login({ email: 'a@b.c', password: 'pw12345!' });
+    await reportsProvider.submit({ type: 'delay', stopId: 's1', description: 'late' });
+    await reportsProvider.submit({ type: 'overcrowded', routeId: '100', description: 'lleno' });
+    await expect(usersProvider.stats()).resolves.toEqual({ trips: 2 });
   });
 });
 

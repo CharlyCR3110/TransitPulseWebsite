@@ -10,7 +10,7 @@ afterEach(() => {
 });
 
 const stops: Stop[] = [
-  { id: 's1', nameKey: 'stop_1', addrKey: 'a1', dist: 100, live: true, routes: ['100'] },
+  { id: 's1', nameKey: 'stop_1', addrKey: 'a1', dist: 100, live: true, routes: ['100'], lat: 9.9343, lng: -84.0508 },
 ];
 const detail: StopDetailDto = {
   stop: stops[0],
