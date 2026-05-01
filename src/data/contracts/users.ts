@@ -6,6 +6,11 @@ export interface UserProfileDto {
   createdAt: string;
 }
 
+export interface UserStatsDto {
+  trips: number;
+}
+
 export interface UsersProvider {
   me(): Promise<UserProfileDto>;
+  stats(): Promise<UserStatsDto>;
 }

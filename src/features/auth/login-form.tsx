@@ -1,7 +1,8 @@
 'use client';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { AppBar } from '@/components/layout/app-bar';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useLang } from '@/components/providers/lang-provider';
@@ -13,6 +14,15 @@ export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get('next') ?? '/home';
+  const reason = params.get('reason');
+
+  useEffect(() => {
+    if (reason === 'session-expired') {
+      toast.info(
+        lang === 'es' ? 'Tu sesión expiró. Por favor inicia sesión de nuevo.' : 'Your session expired. Please sign in again.',
+      );
+    }
+  }, [reason, lang]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
