@@ -125,9 +125,9 @@ export const INITIAL_ARRIVALS: Arrival[] = [
 ];
 
 export const NEARBY_STOPS: Stop[] = [
-  { id: 's1', nameKey: 'stop_1', addrKey: 'stop_1_addr', dist: 120, live: true, routes: ['100', '302', '44', 'T1'] },
-  { id: 's2', nameKey: 'stop_2', addrKey: 'stop_2_addr', dist: 480, live: true, routes: ['T1', 'T2'] },
-  { id: 's3', nameKey: 'stop_3', addrKey: 'stop_3_addr', dist: 1200, live: false, routes: ['201', '205', '207'] },
+  { id: 's1', nameKey: 'stop_1', addrKey: 'stop_1_addr', dist: 120, live: true, routes: ['100', '302', '44', 'T1'], lat: 9.9343, lng: -84.0508 },
+  { id: 's2', nameKey: 'stop_2', addrKey: 'stop_2_addr', dist: 480, live: true, routes: ['T1', 'T2'], lat: 9.9281, lng: -84.0907 },
+  { id: 's3', nameKey: 'stop_3', addrKey: 'stop_3_addr', dist: 1200, live: false, routes: ['201', '205', '207'], lat: 9.9355, lng: -84.0833 },
 ];
 
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();

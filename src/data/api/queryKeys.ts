@@ -22,5 +22,6 @@ export const qk = {
   },
   users: {
     me: () => ['users', 'me'] as const,
+    stats: () => ['users', 'me', 'stats'] as const,
   },
 } as const;

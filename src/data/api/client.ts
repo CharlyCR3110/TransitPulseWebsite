@@ -1,3 +1,4 @@
+import { captureException } from '@/lib/observability';
 import { ApiError, type ApiErrorCode } from './errors';
 
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
@@ -165,7 +166,11 @@ export function createApiClient(config: ApiClientConfig = {}): ApiClient {
       }
 
       if (!response.ok) {
-        throw await parseErrorBody(response);
+        const apiError = await parseErrorBody(response);
+        if (apiError.status >= 500) {
+          captureException(apiError, { url, method, status: apiError.status });
+        }
+        throw apiError;
       }
 
       const text = await response.text();
