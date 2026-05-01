@@ -81,7 +81,7 @@ export function TripDetailScreen({ tripId }: TripDetailScreenProps) {
       </div>
 
       <div style={{ padding: '14px 20px 0' }}>
-        <MiniMap t={t} variant="trip" />
+        <MiniMap t={t} variant="trip" fallbackCenter={{ lat: 9.9343, lng: -84.0508 }} />
       </div>
 
       <div style={{ padding: '14px 20px 0' }}>

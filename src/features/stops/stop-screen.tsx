@@ -72,7 +72,11 @@ export function StopScreen({ stopId }: StopScreenProps) {
       </div>
 
       <div style={{ padding: '0 20px' }}>
-        <MiniMap t={t} variant="home" />
+        <MiniMap
+          t={t}
+          variant="home"
+          pins={[{ id: stop.id, lat: stop.lat, lng: stop.lng, variant: 'highlight' }]}
+        />
       </div>
 
       <div className="section">

@@ -72,7 +72,16 @@ export function HomeScreen() {
         <div className="section-head">
           <span className="section-title">{t('nearby')}</span>
         </div>
-        <MiniMap t={t} variant="home" />
+        <MiniMap
+          t={t}
+          variant="home"
+          pins={nearbyStops.map((s, i) => ({
+            id: s.id,
+            lat: s.lat,
+            lng: s.lng,
+            variant: i === 0 ? 'highlight' : 'default',
+          }))}
+        />
       </div>
 
       <div className="section">

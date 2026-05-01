@@ -5,18 +5,13 @@ import { useStops } from '@/lib/hooks/use-stops';
 import { useLang } from '@/components/providers/lang-provider';
 import { useAuth } from '@/components/providers/auth-provider';
 import type { I18nKey } from '@/data/transit';
+import { useUserStats } from './use-user-stats';
 
 export function ProfileScreen() {
   const { t, lang } = useLang();
   const { status, user, logout } = useAuth();
   const { stops } = useStops();
-
-  const stats = [
-    { v: '42', lEs: 'Viajes', lEn: 'Trips' },
-    { v: '18h', lEs: 'En transporte', lEn: 'On transit' },
-    { v: '₡24k', lEs: 'Gastado', lEn: 'Spent' },
-    { v: '94%', lEs: 'A tiempo', lEn: 'On time' },
-  ];
+  const { stats, loading: statsLoading } = useUserStats();
 
   const greeting =
     status === 'authenticated' && user
@@ -29,6 +24,10 @@ export function ProfileScreen() {
     status === 'authenticated' && user
       ? user.email
       : lang === 'es' ? 'Inicia sesión para guardar viajes y reportar' : 'Sign in to save trips and report';
+
+  const tripsLabel = lang === 'es' ? 'Viajes' : 'Trips';
+  const tripsValue =
+    status !== 'authenticated' ? '—' : statsLoading || stats === undefined ? '…' : String(stats.trips);
 
   return (
     <div className="screen screen-fade">
@@ -82,13 +81,9 @@ export function ProfileScreen() {
         <div className="section-head">
           <span className="section-title">{t('this_month')}</span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          {stats.map((x) => (
-            <div key={x.lEn} className="card--flat" style={{ padding: '14px' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em' }}>{x.v}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4 }}>{lang === 'es' ? x.lEs : x.lEn}</div>
-            </div>
-          ))}
+        <div className="card--flat" style={{ padding: '14px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em' }}>{tripsValue}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4 }}>{tripsLabel}</div>
         </div>
       </div>
     </div>

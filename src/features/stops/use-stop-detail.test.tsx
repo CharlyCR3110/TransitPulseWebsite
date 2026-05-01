@@ -24,7 +24,7 @@ function makeWrapper() {
 }
 
 const detail: StopDetailDto = {
-  stop: { id: 's1', nameKey: 'stop_1', addrKey: 'a', dist: 0, live: true, routes: [] },
+  stop: { id: 's1', nameKey: 'stop_1', addrKey: 'a', dist: 0, live: true, routes: [], lat: 9.9343, lng: -84.0508 },
   arrivals: [],
   updatedAt: 1,
 };

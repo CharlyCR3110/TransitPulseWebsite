@@ -1,5 +1,6 @@
 'use client';
 import { useState, type FormEvent } from 'react';
+import { toast } from 'sonner';
 import { Icon } from '@/components/ui/icons';
 import { useLang } from '@/components/providers/lang-provider';
 import { useSubmitReport } from '@/features/reports/use-submit-report';
@@ -44,6 +45,7 @@ function ReportSheetBody({ onClose, routeId, stopId }: ReportSheetProps) {
         stopId,
         description: description.trim(),
       });
+      toast.success(t('Reporte enviado', 'Report submitted'));
       onClose();
     } catch {
       // error rendered inline below from submit.error
