@@ -23,6 +23,8 @@ export interface Stop {
   dist: number;
   live: boolean;
   routes: string[];
+  lat: number;
+  lng: number;
 }
 
 export interface Alert {
