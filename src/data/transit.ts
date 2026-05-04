@@ -5,7 +5,7 @@ export type I18nKey = keyof typeof I18N.es;
 export const I18N = {
   es: {
     home: 'Inicio', plan: 'Planear', alerts: 'Alertas', profile: 'Perfil',
-    greeting_morning: 'Buenos días, Ana', greeting_afternoon: 'Buenas tardes, Ana', greeting_evening: 'Buenas noches, Ana',
+    greeting_morning: 'Buenos días', greeting_afternoon: 'Buenas tardes', greeting_evening: 'Buenas noches',
     sub_home: 'Aquí está tu GAM ahora mismo',
     nearby: 'Paradas cercanas', next_departures: 'Próximas salidas', view_all: 'Ver todas',
     active_alerts: 'Alertas activas', no_alerts: 'Sin alertas · todo normal',
@@ -57,7 +57,7 @@ export const I18N = {
   },
   en: {
     home: 'Home', plan: 'Plan', alerts: 'Alerts', profile: 'Profile',
-    greeting_morning: 'Good morning, Ana', greeting_afternoon: 'Good afternoon, Ana', greeting_evening: 'Good evening, Ana',
+    greeting_morning: 'Good morning', greeting_afternoon: 'Good afternoon', greeting_evening: 'Good evening',
     sub_home: "Here's your GAM right now",
     nearby: 'Nearby stops', next_departures: 'Next departures', view_all: 'View all',
     active_alerts: 'Active alerts', no_alerts: 'No alerts · all normal',
