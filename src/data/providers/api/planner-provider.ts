@@ -34,11 +34,11 @@ export const plannerProvider: PlannerProvider = {
     }
   },
 
-  async advanceStep(activeTripId, currentIndex) {
+  async advanceStep(tripId, activeTripId, currentIndex) {
     try {
       return await apiClient.request<ActiveTripDto, { currentStepIndex: number; activeTripId: string }>(
         'POST',
-        `/planner/trips/${encodeURIComponent(activeTripId)}/advance`,
+        `/planner/trips/${encodeURIComponent(tripId)}/advance`,
         {
           auth: 'optional',
           body: { currentStepIndex: currentIndex, activeTripId },

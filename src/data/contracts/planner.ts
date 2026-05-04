@@ -34,5 +34,5 @@ export interface PlannerProvider {
   searchTrips(input: PlannerSearchInput): Promise<TripOption[]>;
   getTripDetail(tripId: string): Promise<TripDetailDto | null>;
   startTrip(tripId: string): Promise<ActiveTripDto | null>;
-  advanceStep(activeTripId: string, currentIndex: number): Promise<ActiveTripDto | null>;
+  advanceStep(tripId: string, activeTripId: string, currentIndex: number): Promise<ActiveTripDto | null>;
 }

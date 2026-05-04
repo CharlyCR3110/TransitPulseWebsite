@@ -49,12 +49,12 @@ describe('api plannerProvider', () => {
     expect(await plannerProvider.startTrip('nope')).toBeNull();
   });
 
-  it('advanceStep POSTs to /planner/trips/{activeTripId}/advance with body', async () => {
+  it('advanceStep POSTs to /planner/trips/{tripId}/advance with activeTripId in body', async () => {
     const spy = vi.spyOn(apiClient, 'request').mockResolvedValue({});
-    await plannerProvider.advanceStep('active-uuid', 3);
+    await plannerProvider.advanceStep('tt_template', 'active-uuid', 3);
     expect(spy).toHaveBeenCalledWith(
       'POST',
-      '/planner/trips/active-uuid/advance',
+      '/planner/trips/tt_template/advance',
       {
         auth: 'optional',
         body: { currentStepIndex: 3, activeTripId: 'active-uuid' },
@@ -66,6 +66,6 @@ describe('api plannerProvider', () => {
     vi.spyOn(apiClient, 'request').mockRejectedValue(
       new ApiError({ status: 404, code: 'not_found', message: 'gone' }),
     );
-    expect(await plannerProvider.advanceStep('missing', 0)).toBeNull();
+    expect(await plannerProvider.advanceStep('tt_x', 'missing', 0)).toBeNull();
   });
 });

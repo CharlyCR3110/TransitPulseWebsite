@@ -37,11 +37,11 @@ export const mockPlannerProvider: PlannerProvider = {
     };
   },
 
-  async advanceStep(activeTripId: string, currentIndex: number): Promise<ActiveTripDto | null> {
+  async advanceStep(tripId: string, activeTripId: string, currentIndex: number): Promise<ActiveTripDto | null> {
     await delay(0);
     const session = activeTrips.get(activeTripId);
-    if (!session) return null;
-    const trip = TRIP_OPTIONS.find((t) => t.id === session.tripId);
+    if (!session || session.tripId !== tripId) return null;
+    const trip = TRIP_OPTIONS.find((t) => t.id === tripId);
     if (!trip) return null;
     const next = Math.min(currentIndex + 1, trip.steps.length - 1);
     const remaining = trip.steps.slice(next).reduce((acc, s) => acc + (s.minutes ?? 0), 0);

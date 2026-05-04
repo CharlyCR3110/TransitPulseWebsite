@@ -19,7 +19,7 @@ export function PlannerScreen({ initialFrom, initialTo }: PlannerScreenProps) {
   const router = useRouter();
   const [sort, setSort] = useState<'fastest' | 'cheapest' | 'fewest'>('fastest');
   const [from, setFrom] = useState(initialFrom ?? 'San Pedro · UCR');
-  const [to, setTo] = useState(initialTo ?? 'Multiplaza Escazú');
+  const [to, setTo] = useState(initialTo ?? 'Multiplaza');
 
   const { results: sorted, loading: searching, refresh } = usePlannerSearch(from, to, sort);
 

@@ -73,7 +73,7 @@ describe('useActiveTrip', () => {
       await result.current.advance();
     });
 
-    expect(plannerProvider.advanceStep).toHaveBeenCalledWith('a-uuid-1', 0);
+    expect(plannerProvider.advanceStep).toHaveBeenCalledWith('t1', 'a-uuid-1', 0);
     expect(result.current.activeTrip?.currentStepIndex).toBe(1);
   });
 

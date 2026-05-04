@@ -25,8 +25,8 @@ export function useActiveTrip(tripId: string) {
   });
 
   const advanceMutation = useMutation({
-    mutationFn: ({ activeTripId, currentStepIndex }: { activeTripId: string; currentStepIndex: number }) =>
-      plannerProvider.advanceStep(activeTripId, currentStepIndex),
+    mutationFn: ({ tripId: t, activeTripId, currentStepIndex }: { tripId: string; activeTripId: string; currentStepIndex: number }) =>
+      plannerProvider.advanceStep(t, activeTripId, currentStepIndex),
     onSuccess: (data) => {
       if (!data) {
         setError('not-found');
@@ -49,6 +49,7 @@ export function useActiveTrip(tripId: string) {
   const advance = useCallback(async () => {
     if (!activeTrip) return;
     await advanceMutation.mutateAsync({
+      tripId: activeTrip.tripId,
       activeTripId: activeTrip.activeTripId,
       currentStepIndex: activeTrip.currentStepIndex,
     });
