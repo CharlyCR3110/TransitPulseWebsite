@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useLang } from '@/components/providers/lang-provider';
+import { Icon } from '@/components/ui/icons';
 import { getErrorMessage } from '@/data/api/errors';
 
 const labelStyle: React.CSSProperties = {
@@ -67,6 +68,21 @@ export function RegisterForm() {
 
   return (
     <>
+      <Link
+        href="/profile"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          marginBottom: 18,
+          color: 'var(--text-2)',
+          fontSize: 13,
+          fontWeight: 500,
+        }}
+      >
+        <Icon name="back" size={16} />
+        {t('Volver sin crear cuenta', 'Back without registering')}
+      </Link>
       <h1 style={{ fontSize: 18, fontWeight: 600, marginBottom: 18, color: 'var(--text)' }}>
         {t('Crear cuenta', 'Register')}
       </h1>
