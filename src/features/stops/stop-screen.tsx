@@ -59,8 +59,8 @@ export function StopScreen({ stopId }: StopScreenProps) {
       } />
 
       <div className="stop-hero">
-        <h2 className="stop-name">{t(stop.nameKey as I18nKey)}</h2>
-        <p className="stop-addr">{t(stop.addrKey as I18nKey)}</p>
+        <h2 className="stop-name">{(lang === 'es' ? stop.labelEs : stop.labelEn) ?? t(stop.nameKey as I18nKey)}</h2>
+        <p className="stop-addr">{(lang === 'es' ? stop.addrEs : stop.addrEn) ?? t(stop.addrKey as I18nKey)}</p>
         <div className="stop-meta-row">
           {stop.live && <LiveDot>{t('live')}</LiveDot>}
           <span style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
@@ -93,7 +93,7 @@ export function StopScreen({ stopId }: StopScreenProps) {
               a={a}
               t={t}
               lang={lang}
-              onClick={() => router.push(`/planner?from=${encodeURIComponent(t(stop.nameKey as I18nKey))}&to=${encodeURIComponent(lang === 'es' ? a.destEs : a.destEn)}`)}
+              onClick={() => router.push(`/planner?from=${encodeURIComponent((lang === 'es' ? stop.labelEs : stop.labelEn) ?? t(stop.nameKey as I18nKey))}&to=${encodeURIComponent(lang === 'es' ? a.destEs : a.destEn)}`)}
             />
           ))}
         </div>

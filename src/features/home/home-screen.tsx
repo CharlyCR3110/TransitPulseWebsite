@@ -95,7 +95,7 @@ export function HomeScreen() {
           ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
-          <span>{nearbyStops[0] ? t(nearbyStops[0].nameKey as I18nKey).toUpperCase() : '...'}</span>
+          <span>{nearbyStops[0] ? ((lang === 'es' ? nearbyStops[0].labelEs : nearbyStops[0].labelEn) ?? t(nearbyStops[0].nameKey as I18nKey)).toUpperCase() : '...'}</span>
           <span>{nearbyStops[0] ? `${nearbyStops[0].dist} m` : '...'}</span>
         </div>
       </div>
@@ -111,8 +111,8 @@ export function HomeScreen() {
                 <Icon name="pin" size={18} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.005em' }}>{t(s.nameKey as I18nKey)}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>{t(s.addrKey as I18nKey)}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.005em' }}>{(lang === 'es' ? s.labelEs : s.labelEn) ?? t(s.nameKey as I18nKey)}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>{(lang === 'es' ? s.addrEs : s.addrEn) ?? t(s.addrKey as I18nKey)}</div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 8, flexWrap: 'wrap' }}>
                   {s.routes.slice(0, 4).map((r) => (
                     <span key={r} className="alert-route-pill">{r}</span>

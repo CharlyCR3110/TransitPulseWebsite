@@ -20,6 +20,11 @@ export interface Stop {
   id: string;
   nameKey: string;
   addrKey: string;
+  /** Localized display labels — prefer these over t(nameKey) when present. */
+  labelEs?: string;
+  labelEn?: string;
+  addrEs?: string;
+  addrEn?: string;
   dist: number;
   live: boolean;
   routes: string[];

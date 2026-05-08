@@ -68,8 +68,8 @@ export function ProfileScreen() {
                 <Icon name="star" size={16} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>{t(s.nameKey as I18nKey)}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{t(s.addrKey as I18nKey)}</div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{(lang === 'es' ? s.labelEs : s.labelEn) ?? t(s.nameKey as I18nKey)}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{(lang === 'es' ? s.addrEs : s.addrEn) ?? t(s.addrKey as I18nKey)}</div>
               </div>
               <Icon name="chevron" size={16} />
             </div>
