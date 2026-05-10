@@ -72,6 +72,19 @@ export interface WalkStep {
   time: string;
 }
 
+export interface BusLegStop {
+  stopId: string;
+  sequence: number;
+  nameEs: string;
+  nameEn: string;
+  lat: number;
+  lng: number;
+  /** Cumulative scheduled minutes from the boarding stop. */
+  offsetFromBoardingMin: number;
+  isBoarding: boolean;
+  isAlighting: boolean;
+}
+
 export interface BusStep {
   kind: 'bus';
   route: string;
@@ -83,6 +96,11 @@ export interface BusStep {
   time: string;
   occ: number;
   stops: number;
+  boardStopId?: string | null;
+  alightStopId?: string | null;
+  boardWalkMin?: number;
+  alightWalkMin?: number;
+  legStops?: BusLegStop[];
   prediction?: ArrivalPrediction | null;
 }
 
