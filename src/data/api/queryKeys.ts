@@ -20,6 +20,11 @@ export const qk = {
     home: () => ['arrivals', 'home'] as const,
     byStop: (stopId: string) => ['arrivals', 'stops', stopId] as const,
   },
+  routes: {
+    all: ['routes'] as const,
+    list: () => ['routes', 'list'] as const,
+    byId: (routeId: string) => ['routes', routeId] as const,
+  },
   users: {
     me: () => ['users', 'me'] as const,
     stats: () => ['users', 'me', 'stats'] as const,

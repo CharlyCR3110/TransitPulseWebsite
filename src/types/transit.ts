@@ -3,6 +3,25 @@ export type Theme = 'light' | 'dark';
 export type ArrivalStatus = 'on-time' | 'delayed' | 'disrupted' | 'unknown' | 'ok' | 'warn' | 'bad';
 export type AlertSeverity = 'bad' | 'warn' | 'ok';
 
+export type PredictionConfidence = 'high' | 'medium' | 'low';
+export type PredictionSource =
+  | 'scheduled+prior'
+  | 'scheduled+observed'
+  | 'scheduled+no_prior';
+
+export interface ArrivalPrediction {
+  /** ISO-8601 UTC string. */
+  scheduledDeparture: string;
+  /** ISO-8601 UTC string. */
+  predictedDeparture: string;
+  /** ISO-8601 UTC string; predicted - 1.96·std. */
+  windowLow: string;
+  /** ISO-8601 UTC string; predicted + 1.96·std. */
+  windowHigh: string;
+  confidence: PredictionConfidence;
+  source: PredictionSource;
+}
+
 export interface Arrival {
   id: string;
   route: string;
@@ -14,6 +33,7 @@ export interface Arrival {
   occupancy: number;
   note_es?: string;
   note_en?: string;
+  prediction?: ArrivalPrediction | null;
 }
 
 export interface Stop {
@@ -63,6 +83,7 @@ export interface BusStep {
   time: string;
   occ: number;
   stops: number;
+  prediction?: ArrivalPrediction | null;
 }
 
 export interface TransferStep {

@@ -20,6 +20,7 @@ export const alertsProvider = impl.alertsProvider;
 export const reportsProvider = impl.reportsProvider;
 export const authProvider = impl.authProvider;
 export const usersProvider = impl.usersProvider;
+export const routesProvider = impl.routesProvider;
 
 /** True iff the build was configured to use mock providers. Test-only escape hatch. */
 export const __usingMocks = useMocks;

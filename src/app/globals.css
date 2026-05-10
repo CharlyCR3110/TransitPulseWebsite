@@ -535,6 +535,31 @@ textarea {
   color: var(--warn-ink);
 }
 
+.eta-confidence {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.eta-confidence-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.eta-confidence--schedule {
+  font-style: italic;
+  opacity: 0.8;
+}
+
 .section {
   padding: 8px 0 12px 0;
 }
