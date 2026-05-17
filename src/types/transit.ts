@@ -67,6 +67,15 @@ export type StepKind = 'walk' | 'bus' | 'transfer';
 export interface WalkStep {
   kind: 'walk';
   minutes: number;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  distanceMeters?: number;
+  fromLat?: number | null;
+  fromLng?: number | null;
+  toLat?: number | null;
+  toLng?: number | null;
+  fromEs?: string | null;
+  fromEn?: string | null;
   toEs: string;
   toEn: string;
   time: string;
@@ -89,6 +98,8 @@ export interface BusStep {
   kind: 'bus';
   route: string;
   minutes: number;
+  startsAt?: string | null;
+  endsAt?: string | null;
   fromEs: string;
   fromEn: string;
   toEs: string;
@@ -101,12 +112,17 @@ export interface BusStep {
   boardWalkMin?: number;
   alightWalkMin?: number;
   legStops?: BusLegStop[];
+  nextDepartures?: ArrivalPrediction[];
+  routeLongNameEs?: string | null;
+  routeLongNameEn?: string | null;
   prediction?: ArrivalPrediction | null;
 }
 
 export interface TransferStep {
   kind: 'transfer';
   minutes: number;
+  startsAt?: string | null;
+  endsAt?: string | null;
   toEs: string;
   toEn: string;
   time: string;
@@ -117,6 +133,8 @@ export type TripStep = WalkStep | BusStep | TransferStep;
 export interface TripOption {
   id: string;
   tag: string;
+  departureAt?: string | null;
+  arrivalAt?: string | null;
   minutes: number;
   price: number;
   transfers: number;

@@ -123,6 +123,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/routes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Routes */
+        get: operations["list_routes_api_v1_routes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/routes/{route_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Route */
+        get: operations["get_route_api_v1_routes__route_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/arrivals/home": {
         parameters: {
             query?: never;
@@ -149,6 +183,23 @@ export interface paths {
         };
         /** Get Stop Arrivals */
         get: operations["get_stop_arrivals_api_v1_arrivals_stops__stop_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/predictions/stop/{stop_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Predictions For Stop */
+        get: operations["predictions_for_stop_api_v1_predictions_stop__stop_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -269,6 +320,10 @@ export interface components {
             tripId: string;
             /** Activetripid */
             activeTripId: string;
+            /** Departureat */
+            departureAt?: string | null;
+            /** Arrivalat */
+            arrivalAt?: string | null;
             /** Currentstepindex */
             currentStepIndex: number;
             /** Steps */
@@ -321,6 +376,71 @@ export interface components {
             note_es?: string | null;
             /** Note En */
             note_en?: string | null;
+            prediction?: components["schemas"]["ArrivalPrediction"] | null;
+        };
+        /** ArrivalPrediction */
+        ArrivalPrediction: {
+            /**
+             * Scheduleddeparture
+             * Format: date-time
+             */
+            scheduledDeparture: string;
+            /**
+             * Predicteddeparture
+             * Format: date-time
+             */
+            predictedDeparture: string;
+            /**
+             * Windowlow
+             * Format: date-time
+             */
+            windowLow: string;
+            /**
+             * Windowhigh
+             * Format: date-time
+             */
+            windowHigh: string;
+            /**
+             * Confidence
+             * @enum {string}
+             */
+            confidence: "high" | "medium" | "low";
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "scheduled+prior" | "scheduled+observed" | "scheduled+no_prior";
+        };
+        /**
+         * BusLegStop
+         * @description One stop the bus passes through during this leg, ordered from
+         *     boarding (sequence=0) to alighting (sequence=N-1).
+         */
+        BusLegStop: {
+            /** Stopid */
+            stopId: string;
+            /** Sequence */
+            sequence: number;
+            /** Namees */
+            nameEs: string;
+            /** Nameen */
+            nameEn: string;
+            /** Lat */
+            lat: number;
+            /** Lng */
+            lng: number;
+            /** Offsetfromboardingmin */
+            offsetFromBoardingMin: number;
+            /**
+             * Isboarding
+             * @default false
+             */
+            isBoarding: boolean;
+            /**
+             * Isalighting
+             * @default false
+             */
+            isAlighting: boolean;
         };
         /** BusStepOut */
         BusStepOut: {
@@ -333,6 +453,10 @@ export interface components {
             route: string;
             /** Minutes */
             minutes: number;
+            /** Startsat */
+            startsAt?: string | null;
+            /** Endsat */
+            endsAt?: string | null;
             /** Fromes */
             fromEs: string;
             /** Fromen */
@@ -347,6 +471,51 @@ export interface components {
             occ: number;
             /** Stops */
             stops: number;
+            /** Boardstopid */
+            boardStopId?: string | null;
+            /** Alightstopid */
+            alightStopId?: string | null;
+            /**
+             * Boardwalkmin
+             * @default 3
+             */
+            boardWalkMin: number;
+            /**
+             * Alightwalkmin
+             * @default 3
+             */
+            alightWalkMin: number;
+            /**
+             * Legstops
+             * @default []
+             */
+            legStops: components["schemas"]["BusLegStop"][];
+            /**
+             * Nextdepartures
+             * @default []
+             */
+            nextDepartures: components["schemas"]["ArrivalPrediction"][];
+            /** Routelongnamees */
+            routeLongNameEs?: string | null;
+            /** Routelongnameen */
+            routeLongNameEn?: string | null;
+            prediction?: components["schemas"]["ArrivalPrediction"] | null;
+        };
+        /** DirectionOut */
+        DirectionOut: {
+            /** Stops */
+            stops: components["schemas"]["RouteStopOut"][];
+            shape?: components["schemas"]["GeoJSONLineString"] | null;
+        };
+        /** GeoJSONLineString */
+        GeoJSONLineString: {
+            /**
+             * Type
+             * @constant
+             */
+            type: "LineString";
+            /** Coordinates */
+            coordinates: number[][];
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -362,6 +531,47 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /** PredictionOut */
+        PredictionOut: {
+            /** Routeid */
+            routeId: string;
+            /** Routecode */
+            routeCode: string;
+            /** Stopid */
+            stopId: string;
+            /** Direction */
+            direction: string;
+            /**
+             * Scheduleddeparture
+             * Format: date-time
+             */
+            scheduledDeparture: string;
+            /**
+             * Predicteddeparture
+             * Format: date-time
+             */
+            predictedDeparture: string;
+            /**
+             * Windowlow
+             * Format: date-time
+             */
+            windowLow: string;
+            /**
+             * Windowhigh
+             * Format: date-time
+             */
+            windowHigh: string;
+            /**
+             * Confidence
+             * @enum {string}
+             */
+            confidence: "high" | "medium" | "low";
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "scheduled+prior" | "scheduled+observed" | "scheduled+no_prior";
         };
         /** RegisterIn */
         RegisterIn: {
@@ -405,6 +615,91 @@ export interface components {
             /** Description */
             description: string;
         };
+        /** RouteDetailOut */
+        RouteDetailOut: {
+            /** Id */
+            id: string;
+            /** Code */
+            code: string;
+            /** Namees */
+            nameEs: string;
+            /** Nameen */
+            nameEn: string;
+            /** Operator */
+            operator?: string | null;
+            /** Color */
+            color: string;
+            /** Farecrc */
+            fareCrc: number;
+            /** Directions */
+            directions: {
+                [key: string]: components["schemas"]["DirectionOut"];
+            };
+            /** Schedules */
+            schedules: components["schemas"]["ScheduleWindowOut"][];
+        };
+        /** RouteOut */
+        RouteOut: {
+            /** Id */
+            id: string;
+            /** Code */
+            code: string;
+            /** Namees */
+            nameEs: string;
+            /** Nameen */
+            nameEn: string;
+            /** Operator */
+            operator?: string | null;
+            /** Color */
+            color: string;
+            /** Farecrc */
+            fareCrc: number;
+        };
+        /** RouteStopOut */
+        RouteStopOut: {
+            /** Stopid */
+            stopId: string;
+            /** Sequence */
+            sequence: number;
+            /** Scheduledoffsetmin */
+            scheduledOffsetMin: number;
+            /** Namees */
+            nameEs: string;
+            /** Nameen */
+            nameEn: string;
+            /** Lat */
+            lat: number;
+            /** Lng */
+            lng: number;
+        };
+        /** ScheduleWindowOut */
+        ScheduleWindowOut: {
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "outbound" | "inbound";
+            /**
+             * Serviceday
+             * @enum {string}
+             */
+            serviceDay: "weekday" | "saturday" | "sunday_holiday";
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "headway" | "explicit";
+            /** Headwaymin */
+            headwayMin?: number | null;
+            /** Starttime */
+            startTime: string;
+            /** Endtime */
+            endTime: string;
+            /** Explicittimes */
+            explicitTimes?: string[] | null;
+            /** Notes */
+            notes?: string | null;
+        };
         /**
          * SortMode
          * @enum {string}
@@ -426,6 +721,14 @@ export interface components {
             nameKey: string;
             /** Addrkey */
             addrKey: string;
+            /** Labeles */
+            labelEs: string;
+            /** Labelen */
+            labelEn: string;
+            /** Addres */
+            addrEs: string;
+            /** Addren */
+            addrEn: string;
             /** Dist */
             dist: number;
             /** Live */
@@ -453,6 +756,10 @@ export interface components {
             kind: "transfer";
             /** Minutes */
             minutes: number;
+            /** Startsat */
+            startsAt?: string | null;
+            /** Endsat */
+            endsAt?: string | null;
             /** Toes */
             toEs: string;
             /** Toen */
@@ -471,6 +778,10 @@ export interface components {
         TripDetailOut: {
             /** Id */
             id: string;
+            /** Departureat */
+            departureAt?: string | null;
+            /** Arrivalat */
+            arrivalAt?: string | null;
             /** Minutes */
             minutes: number;
             /** Price */
@@ -494,6 +805,10 @@ export interface components {
             id: string;
             /** Tag */
             tag: string;
+            /** Departureat */
+            departureAt?: string | null;
+            /** Arrivalat */
+            arrivalAt?: string | null;
             /** Minutes */
             minutes: number;
             /** Price */
@@ -550,6 +865,27 @@ export interface components {
             kind: "walk";
             /** Minutes */
             minutes: number;
+            /** Startsat */
+            startsAt?: string | null;
+            /** Endsat */
+            endsAt?: string | null;
+            /**
+             * Distancemeters
+             * @default 0
+             */
+            distanceMeters: number;
+            /** Fromlat */
+            fromLat?: number | null;
+            /** Fromlng */
+            fromLng?: number | null;
+            /** Tolat */
+            toLat?: number | null;
+            /** Tolng */
+            toLng?: number | null;
+            /** Fromes */
+            fromEs?: string | null;
+            /** Fromen */
+            fromEn?: string | null;
             /** Toes */
             toEs: string;
             /** Toen */
@@ -594,6 +930,7 @@ export interface operations {
                 from: string;
                 to: string;
                 sort?: components["schemas"]["SortMode"];
+                departureAt?: string | null;
             };
             header?: never;
             path?: never;
@@ -623,7 +960,9 @@ export interface operations {
     };
     get_trip_detail_api_v1_planner_trips__trip_id__get: {
         parameters: {
-            query?: never;
+            query?: {
+                departureAt?: string | null;
+            };
             header?: never;
             path: {
                 trip_id: string;
@@ -781,6 +1120,57 @@ export interface operations {
             };
         };
     };
+    list_routes_api_v1_routes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteOut"][];
+                };
+            };
+        };
+    };
+    get_route_api_v1_routes__route_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                route_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetailOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_home_arrivals_api_v1_arrivals_home_get: {
         parameters: {
             query?: never;
@@ -819,6 +1209,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ArrivalOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    predictions_for_stop_api_v1_predictions_stop__stop_id__get: {
+        parameters: {
+            query?: {
+                horizon_min?: number;
+            };
+            header?: never;
+            path: {
+                stop_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PredictionOut"][];
                 };
             };
             /** @description Validation Error */

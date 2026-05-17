@@ -6,10 +6,13 @@ export interface PlannerSearchInput {
   from: string;
   to: string;
   sort: SortMode;
+  departureAt?: string;
 }
 
 export interface TripDetailDto {
   id: string;
+  departureAt?: string | null;
+  arrivalAt?: string | null;
   minutes: number;
   price: number;
   transfers: number;
@@ -24,6 +27,8 @@ export interface ActiveTripDto {
   tripId: string;
   /** Backend-assigned id for this in-progress trip; required for advanceStep. */
   activeTripId: string;
+  departureAt?: string | null;
+  arrivalAt?: string | null;
   currentStepIndex: number;
   steps: TripStep[];
   etaMinutes: number;
@@ -32,7 +37,7 @@ export interface ActiveTripDto {
 
 export interface PlannerProvider {
   searchTrips(input: PlannerSearchInput): Promise<TripOption[]>;
-  getTripDetail(tripId: string): Promise<TripDetailDto | null>;
+  getTripDetail(tripId: string, departureAt?: string): Promise<TripDetailDto | null>;
   startTrip(tripId: string): Promise<ActiveTripDto | null>;
   advanceStep(tripId: string, activeTripId: string, currentIndex: number): Promise<ActiveTripDto | null>;
 }

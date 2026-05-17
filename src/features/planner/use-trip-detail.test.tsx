@@ -61,6 +61,22 @@ describe('useTripDetail', () => {
     expect(result.current.error).toBeNull();
   });
 
+  it('passes departureAt to the provider', async () => {
+    vi.mocked(plannerProvider.getTripDetail).mockResolvedValue(detail);
+    vi.mocked(alertsProvider.getAlertsForRoutes).mockResolvedValue([]);
+
+    const { result } = renderHook(
+      () => useTripDetail('t1', '2026-06-01T13:00:00Z'),
+      { wrapper: makeWrapper() },
+    );
+    await waitFor(() => expect(result.current.trip).toBe(detail));
+
+    expect(plannerProvider.getTripDetail).toHaveBeenCalledWith(
+      't1',
+      '2026-06-01T13:00:00Z',
+    );
+  });
+
   it('returns error="not-found" when provider resolves null', async () => {
     vi.mocked(plannerProvider.getTripDetail).mockResolvedValue(null);
     const { result } = renderHook(() => useTripDetail('nope'), { wrapper: makeWrapper() });

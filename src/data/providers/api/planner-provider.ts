@@ -4,13 +4,20 @@ import type { ActiveTripDto, PlannerProvider, TripDetailDto } from '@/data/contr
 import type { TripOption } from '@/types/transit';
 
 export const plannerProvider: PlannerProvider = {
-  searchTrips: ({ from, to, sort }) =>
+  searchTrips: ({ from, to, sort, departureAt }) =>
     apiClient.request<TripOption[]>('GET', '/planner/search', {
-      query: { from, to, sort },
+      query: { from, to, sort, ...(departureAt ? { departureAt } : {}) },
     }),
 
-  async getTripDetail(tripId) {
+  async getTripDetail(tripId, departureAt) {
     try {
+      if (departureAt) {
+        return await apiClient.request<TripDetailDto>(
+          'GET',
+          `/planner/trips/${encodeURIComponent(tripId)}`,
+          { query: { departureAt } },
+        );
+      }
       return await apiClient.request<TripDetailDto>(
         'GET',
         `/planner/trips/${encodeURIComponent(tripId)}`,

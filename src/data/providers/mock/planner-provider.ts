@@ -16,7 +16,7 @@ export const mockPlannerProvider: PlannerProvider = {
     return sortOptions(TRIP_OPTIONS, sort);
   },
 
-  async getTripDetail(tripId: string): Promise<TripDetailDto | null> {
+  async getTripDetail(tripId: string, _departureAt?: string): Promise<TripDetailDto | null> {
     await delay(0);
     return TRIP_OPTIONS.find((t) => t.id === tripId) ?? null;
   },

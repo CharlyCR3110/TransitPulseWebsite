@@ -1,10 +1,9 @@
 'use client';
-import { useMemo } from 'react';
+
 import { useRouter } from 'next/navigation';
 import { AppBar } from '@/components/layout/app-bar';
 import { Icon } from '@/components/ui/icons';
 import { MiniMap } from '@/components/transit/mini-map';
-import { ConfidenceRing } from '@/components/transit/confidence-ring';
 import { RouteBadge } from '@/components/transit/route-badge';
 import { OccBars } from '@/components/transit/occ-bars';
 import { StatusChip } from '@/components/transit/status-chip';
@@ -12,39 +11,64 @@ import { useLang } from '@/components/providers/lang-provider';
 import { useTripDetail } from './use-trip-detail';
 import { formatEmittedAt } from '@/features/alerts/format-emitted-at';
 import type { I18nKey } from '@/data/transit';
-import type { BusLegStop, BusStep, TripStep } from '@/types/transit';
-
-type FlatItem =
-  | { kind: 'plain'; step: TripStep }
-  | { kind: 'leg-stop'; step: BusStep; leg: BusLegStop };
-
-function flattenSteps(steps: TripStep[]): FlatItem[] {
-  const out: FlatItem[] = [];
-  for (const step of steps) {
-    if (step.kind === 'bus' && step.legStops && step.legStops.length > 0) {
-      for (const leg of step.legStops) {
-        out.push({ kind: 'leg-stop', step, leg });
-      }
-    } else {
-      out.push({ kind: 'plain', step });
-    }
-  }
-  return out;
-}
+import type { BusStep, TripStep, WalkStep } from '@/types/transit';
 
 interface TripDetailScreenProps {
   tripId: string;
+  departureAt?: string;
 }
 
-export function TripDetailScreen({ tripId }: TripDetailScreenProps) {
+function clock(value?: string | null, locale = 'es-CR') {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return new Intl.DateTimeFormat(locale, {
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(d);
+}
+
+function meters(value?: number) {
+  if (!value || value <= 0) return '0 m';
+  if (value < 1000) return `${Math.round(value)} m`;
+  return `${(value / 1000).toFixed(1)} km`;
+}
+
+function stepName(step: Pick<WalkStep, 'toEs' | 'toEn'>, lang: 'es' | 'en') {
+  return lang === 'es' ? step.toEs : step.toEn;
+}
+
+function busName(step: BusStep, lang: 'es' | 'en') {
+  return lang === 'es'
+    ? step.routeLongNameEs || step.fromEs
+    : step.routeLongNameEn || step.fromEn;
+}
+
+function firstBus(steps: TripStep[]) {
+  return steps.find((s): s is BusStep => s.kind === 'bus') ?? null;
+}
+
+function lastWalk(steps: TripStep[]) {
+  const walkSteps = steps.filter((s): s is WalkStep => s.kind === 'walk');
+  return walkSteps[walkSteps.length - 1] ?? null;
+}
+
+function shiftIso(anchor: string | undefined | null, minutes: number) {
+  const base = anchor ? new Date(anchor) : new Date();
+  if (Number.isNaN(base.getTime())) return new Date(Date.now() + minutes * 60_000).toISOString();
+  return new Date(base.getTime() + minutes * 60_000).toISOString();
+}
+
+export function TripDetailScreen({ tripId, departureAt }: TripDetailScreenProps) {
   const { t, lang } = useLang();
   const router = useRouter();
-  const { trip, relatedAlerts: related, loading, error } = useTripDetail(tripId);
+  const { trip, relatedAlerts: related, loading, error } = useTripDetail(tripId, departureAt);
+  const locale = lang === 'es' ? 'es-CR' : 'en-US';
 
   if (loading) {
     return (
       <div className="screen screen-fade">
-        <AppBar title="…" showBack />
+        <AppBar title="..." showBack />
         <div className="empty">{t('searching')}</div>
       </div>
     );
@@ -59,141 +83,90 @@ export function TripDetailScreen({ tripId }: TripDetailScreenProps) {
     );
   }
 
-  const confLabel: I18nKey = trip.confidence >= 0.9 ? 'reliable' : trip.confidence >= 0.8 ? 'moderate' : 'low';
-  const arrivalTime = trip.steps[trip.steps.length - 1].time;
-  const departTime = trip.steps[0].time;
-  const flat = useMemo(() => flattenSteps(trip.steps), [trip.steps]);
+  const bus = firstBus(trip.steps);
+  const finalWalk = lastWalk(trip.steps);
+  const departureTime = clock(trip.departureAt ?? trip.steps[0]?.startsAt, locale) ?? trip.steps[0]?.time;
+  const arrivalTime = clock(trip.arrivalAt ?? trip.steps[trip.steps.length - 1]?.endsAt, locale) ?? trip.steps[trip.steps.length - 1]?.time;
+  const startLabel = trip.steps[0]?.kind === 'walk'
+    ? (lang === 'es' ? trip.steps[0].fromEs || trip.steps[0].toEs : trip.steps[0].fromEn || trip.steps[0].toEn)
+    : bus ? (lang === 'es' ? bus.fromEs : bus.fromEn) : t('from');
+  const destinationLabel = finalWalk ? stepName(finalWalk, lang) : bus ? (lang === 'es' ? bus.toEs : bus.toEn) : t('destination');
+  const pagerAnchor = departureAt ?? trip.departureAt ?? trip.steps[0]?.startsAt ?? new Date().toISOString();
+  const goToShift = (minutes: number) => {
+    const next = shiftIso(pagerAnchor, minutes);
+    router.push(`/planner/${encodeURIComponent(tripId)}?departureAt=${encodeURIComponent(next)}`);
+  };
 
   return (
-    <div className="screen screen-fade">
+    <div className="screen screen-fade itinerary-screen">
       <AppBar
-        title={`${t('duration')} · ${trip.minutes} ${t('min')}`}
+        title={lang === 'es' ? 'Itinerario' : 'Itinerary'}
         showBack
         trailing={
           <>
-            <button className="appbar-action"><Icon name="refresh" size={18} /></button>
-            <button className="appbar-action"><Icon name="star" size={18} /></button>
+            <button className="appbar-action" aria-label={t('refresh')}><Icon name="refresh" size={18} /></button>
+            <button className="appbar-action" aria-label={t('star')}><Icon name="star" size={18} /></button>
           </>
         }
       />
 
-      <div className="trip-head">
-        <div className="trip-route-line">
-          <span className="dot-from" />
-          <span style={{ flexShrink: 0 }}>San Pedro</span>
-          <span className="line" />
-          <span style={{ flexShrink: 0 }}>Escazú</span>
-          <span className="dot-to" />
+      <section className="itinerary-hero">
+        <div>
+          <div className="itinerary-kicker">{lang === 'es' ? 'Itinerario' : 'Itinerary'}</div>
+          <div className="itinerary-duration">{trip.minutes} {t('min')}</div>
+          <div className="itinerary-window">{departureTime} - {arrivalTime}</div>
         </div>
-        <div className="trip-stats">
-          <div className="trip-stat">
-            <div className="trip-stat-label">{t('leaves')}</div>
-            <div className="trip-stat-val">{departTime}</div>
-          </div>
-          <div className="trip-stat">
-            <div className="trip-stat-label">{t('arrive')}</div>
-            <div className="trip-stat-val">{arrivalTime}</div>
-          </div>
-          <div className="trip-stat">
-            <div className="trip-stat-label">{t('cost')}</div>
-            <div className="trip-stat-val">₡{trip.price}</div>
-          </div>
-        </div>
+        <div className="itinerary-cost">₡{trip.price}</div>
+      </section>
+
+      <div className="itinerary-pager">
+        <button type="button" onClick={() => goToShift(-30)}><Icon name="back" size={16} />{lang === 'es' ? 'Antes' : 'Earlier'}</button>
+        <button type="button" onClick={() => goToShift(30)}>{lang === 'es' ? 'Después' : 'Later'}<Icon name="chevron" size={16} /></button>
       </div>
 
-      <div style={{ padding: '14px 20px 0' }}>
+      <div className="itinerary-map">
         <MiniMap t={t} variant="trip" fallbackCenter={{ lat: 9.9343, lng: -84.0508 }} />
       </div>
 
-      <div style={{ padding: '14px 20px 0' }}>
-        <div className="confidence">
-          <ConfidenceRing value={trip.confidence} />
-          <div>
-            <div className="confidence-body-label">{t('confidence')}</div>
-            <div className="confidence-body-value">{t(confLabel)}</div>
-            <div className="confidence-body-note">{t('usually_on_time')}</div>
-          </div>
-        </div>
-      </div>
+      <div className="itinerary-list">
+        <AnchorSection
+          icon="pin"
+          title={lang === 'es' ? 'Salir desde' : 'Start from'}
+          label={startLabel}
+          meta={`${t('leaves')} ${departureTime}`}
+        />
 
-      <div className="section" style={{ marginTop: 6 }}>
-        <div className="section-head">
-          <span className="section-title">{t('steps')}</span>
-        </div>
-        <div className="timeline">
-          {flat.map((item, idx) => {
-            const isLast = idx === flat.length - 1;
-
-            if (item.kind === 'plain') {
-              const step = item.step;
-              const isWalk = step.kind === 'walk';
-              const isTransfer = step.kind === 'transfer';
-              const nodeCls = isLast ? 'tl-node--end' : isWalk ? 'tl-node--walk' : isTransfer ? 'tl-node--transfer' : '';
-              const title = isWalk
-                ? `${t('walk_to')} ${lang === 'es' ? (step as { toEs: string }).toEs : (step as { toEn: string }).toEn} · ${step.minutes} ${t('min')}`
-                : isTransfer
-                  ? `${t('transfer')} · ${step.minutes} ${t('min')}`
-                  : `${lang === 'es' ? (step as BusStep).fromEs : (step as BusStep).fromEn} → ${lang === 'es' ? (step as BusStep).toEs : (step as BusStep).toEn}`;
-              return (
-                <div key={`p-${idx}`} className="tl-step">
-                  <div className="tl-rail">
-                    <span className={`tl-node ${nodeCls}`} />
-                    {!isLast && <span className={`tl-connector ${isWalk || isTransfer ? 'tl-connector--walk' : ''}`} />}
-                  </div>
-                  <div className="tl-body">
-                    <div className="tl-time">{step.time}</div>
-                    <div className="tl-title">{title}</div>
-                  </div>
-                </div>
-              );
-            }
-
-            // leg-stop
-            const { step, leg } = item;
-            const stopName = lang === 'es' ? leg.nameEs : leg.nameEn;
-            const isBoard = leg.isBoarding;
-            const isAlight = leg.isAlighting;
-            const offsetLabel = isBoard
-              ? (lang === 'es' ? 'Abordas aquí' : 'Board here')
-              : isAlight
-                ? (lang === 'es' ? 'Bajas aquí' : 'Alight here')
-                : `+${leg.offsetFromBoardingMin} ${t('min')}`;
-            const nodeStyle: React.CSSProperties = isBoard || isAlight
-              ? { background: 'var(--primary)', width: 14, height: 14 }
-              : { background: 'var(--text-3)', width: 8, height: 8 };
+        {trip.steps.map((step, idx) => {
+          if (step.kind === 'walk') {
             return (
-              <div key={`bs-${idx}`} className="tl-step">
-                <div className="tl-rail">
-                  <span className="tl-node" style={nodeStyle} />
-                  {!isLast && <span className="tl-connector" />}
-                </div>
-                <div className="tl-body" style={{
-                  background: isBoard || isAlight ? 'var(--primary-weak)' : 'transparent',
-                  borderRadius: 'var(--r-sm)',
-                  padding: isBoard || isAlight ? '8px 10px' : '4px 0 4px 2px',
-                }}>
-                  <div className="tl-time" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span>{offsetLabel}</span>
-                    {isBoard && <RouteBadge route={step.route} kind="bus" />}
-                  </div>
-                  <div className="tl-title" style={{
-                    fontWeight: isBoard || isAlight ? 600 : 500,
-                    color: isBoard || isAlight ? 'var(--text)' : 'var(--text-2)',
-                  }}>{stopName}</div>
-                  {isBoard && (
-                    <div className="tl-detail-extra" style={{ marginTop: 6 }}>
-                      <OccBars level={step.occ} t={t} />
-                      <StatusChip status="ok" label={t('onTime')} />
-                      <span style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-mono)' }}>
-                        {step.minutes} {t('min')} · {(step.legStops?.length ?? 1) - 1} {lang === 'es' ? 'paradas' : 'stops'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <WalkSection
+                key={`walk-${idx}`}
+                step={step}
+                lang={lang}
+                locale={locale}
+              />
             );
-          })}
-        </div>
+          }
+          if (step.kind === 'transfer') {
+            return (
+              <SimpleSection
+                key={`transfer-${idx}`}
+                icon="route"
+                title={t('transfer')}
+                label={stepName(step, lang)}
+                meta={`${step.minutes} ${t('min')} · ${clock(step.startsAt, locale) ?? step.time}`}
+              />
+            );
+          }
+          return <BusSection key={`bus-${idx}`} step={step} lang={lang} locale={locale} t={t} />;
+        })}
+
+        <AnchorSection
+          icon="pin"
+          title={t('destination')}
+          label={destinationLabel}
+          meta={`${t('arrive')} ${arrivalTime}`}
+        />
       </div>
 
       {related.length > 0 && (
@@ -221,14 +194,122 @@ export function TripDetailScreen({ tripId }: TripDetailScreenProps) {
         </div>
       )}
 
-      <div style={{ padding: '8px 20px 20px' }}>
-        <button
-          onClick={() => router.push(`/trip/active?tripId=${tripId}`)}
-          style={{ width: '100%', padding: '14px 20px', background: 'var(--primary)', color: 'var(--primary-contrast)', borderRadius: 'var(--r-md)', fontSize: 15, fontWeight: 600, letterSpacing: '-0.005em', boxShadow: 'var(--shadow-sm)' }}
-        >
+      <div className="itinerary-actions">
+        <button onClick={() => router.push(`/trip/active?tripId=${tripId}`)}>
           {t('start_trip')}
         </button>
       </div>
     </div>
+  );
+}
+
+function AnchorSection({ icon, title, label, meta }: { icon: string; title: string; label: string; meta: string }) {
+  return (
+    <section className="itinerary-section itinerary-section--anchor">
+      <div className="itinerary-section-icon"><Icon name={icon} size={18} /></div>
+      <div className="itinerary-section-body">
+        <div className="itinerary-section-title">{title}</div>
+        <div className="itinerary-section-label">{label}</div>
+        <div className="itinerary-section-meta">{meta}</div>
+      </div>
+    </section>
+  );
+}
+
+function SimpleSection({ icon, title, label, meta }: { icon: string; title: string; label: string; meta: string }) {
+  return (
+    <section className="itinerary-section">
+      <div className="itinerary-section-icon"><Icon name={icon} size={18} /></div>
+      <div className="itinerary-section-body">
+        <div className="itinerary-section-title">{title}</div>
+        <div className="itinerary-section-label">{label}</div>
+        <div className="itinerary-section-meta">{meta}</div>
+      </div>
+    </section>
+  );
+}
+
+function WalkSection({ step, lang, locale }: { step: WalkStep; lang: 'es' | 'en'; locale: string }) {
+  const title = lang === 'es' ? 'Caminar a' : 'Walk to';
+  const time = clock(step.startsAt, locale) ?? step.time;
+  return (
+    <section className="itinerary-section itinerary-section--walk">
+      <div className="itinerary-section-icon"><Icon name="walk" size={18} /></div>
+      <div className="itinerary-section-body">
+        <div className="itinerary-section-title">{title}</div>
+        <div className="itinerary-section-label">{stepName(step, lang)}</div>
+        <div className="itinerary-section-meta">
+          {meters(step.distanceMeters)} · {step.minutes} min · {time}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BusSection({ step, lang, locale, t }: { step: BusStep; lang: 'es' | 'en'; locale: string; t: (key: I18nKey) => string }) {
+  const boardName = lang === 'es' ? step.fromEs : step.fromEn;
+  const alightName = lang === 'es' ? step.toEs : step.toEn;
+  const departures = (step.nextDepartures ?? []).slice(0, 5);
+  return (
+    <>
+      <section className="itinerary-section itinerary-section--wait">
+        <div className="itinerary-section-icon"><Icon name="clock" size={18} /></div>
+        <div className="itinerary-section-body">
+          <div className="itinerary-section-title">{lang === 'es' ? 'Esperar' : 'Wait for'}</div>
+          <div className="itinerary-route-head">
+            <RouteBadge route={step.route} kind="bus" />
+            <span>{busName(step, lang)}</span>
+          </div>
+          <div className="itinerary-section-label">{boardName}</div>
+          {departures.length > 0 && (
+            <div className="itinerary-departures">
+              {departures.map((d) => (
+                <span key={d.predictedDeparture}>{clock(d.predictedDeparture, locale)}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="itinerary-section itinerary-section--ride">
+        <div className="itinerary-section-icon"><Icon name="bus" size={18} /></div>
+        <div className="itinerary-section-body">
+          <div className="itinerary-section-title">{lang === 'es' ? 'Viajar' : 'Ride'}</div>
+          <div className="itinerary-section-label">
+            {step.route} · {step.stops} {lang === 'es' ? 'paradas' : 'stops'} · {step.minutes} min
+          </div>
+          <div className="itinerary-ride-extra">
+            <OccBars level={step.occ} t={t} />
+            <StatusChip status="ok" label={lang === 'es' ? 'A tiempo' : 'On time'} />
+          </div>
+          <div className="itinerary-stops">
+            {(step.legStops ?? []).map((stop) => {
+              const name = lang === 'es' ? stop.nameEs : stop.nameEn;
+              const stopTime = step.startsAt
+                ? clock(new Date(new Date(step.startsAt).getTime() + stop.offsetFromBoardingMin * 60_000).toISOString(), locale)
+                : stop.isBoarding
+                  ? clock(step.startsAt, locale)
+                  : `+${stop.offsetFromBoardingMin} min`;
+              return (
+                <div key={`${step.route}-${stop.stopId}-${stop.sequence}`} className={`itinerary-stop ${stop.isBoarding || stop.isAlighting ? 'itinerary-stop--major' : ''}`}>
+                  <span className="itinerary-stop-dot" />
+                  <span className="itinerary-stop-name">{name}</span>
+                  <span className="itinerary-stop-time">
+                    {stop.isBoarding ? (lang === 'es' ? 'Abordar' : 'Board') : stop.isAlighting ? (lang === 'es' ? 'Bajar' : 'Alight') : stopTime}
+                  </span>
+                </div>
+              );
+            })}
+            {(step.legStops ?? []).length === 0 && (
+              <div className="itinerary-stop itinerary-stop--major">
+                <span className="itinerary-stop-dot" />
+                <span className="itinerary-stop-name">{boardName} - {alightName}</span>
+                <span className="itinerary-stop-time">{step.minutes} min</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

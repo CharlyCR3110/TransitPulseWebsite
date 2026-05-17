@@ -4,7 +4,7 @@ export const qk = {
   planner: {
     all: ['planner'] as const,
     search: (input: PlannerSearchInput) => ['planner', 'search', input] as const,
-    trip: (tripId: string) => ['planner', 'trip', tripId] as const,
+    trip: (tripId: string, departureAt?: string) => ['planner', 'trip', tripId, departureAt ?? null] as const,
     activeTrip: (tripId: string) => ['planner', 'activeTrip', tripId] as const,
   },
   stops: {

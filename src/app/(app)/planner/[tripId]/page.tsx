@@ -2,9 +2,11 @@ import { TripDetailScreen } from '@/features/planner/trip-detail-screen';
 
 interface TripDetailPageProps {
   params: Promise<{ tripId: string }>;
+  searchParams?: Promise<{ departureAt?: string }>;
 }
 
-export default async function TripDetailPage({ params }: TripDetailPageProps) {
+export default async function TripDetailPage({ params, searchParams }: TripDetailPageProps) {
   const { tripId } = await params;
-  return <TripDetailScreen tripId={tripId} />;
+  const query = searchParams ? await searchParams : {};
+  return <TripDetailScreen tripId={tripId} departureAt={query.departureAt} />;
 }

@@ -7,10 +7,10 @@ import type { Alert, BusStep } from '@/types/transit';
 
 const EMPTY_ALERTS: Alert[] = [];
 
-export function useTripDetail(tripId: string) {
+export function useTripDetail(tripId: string, departureAt?: string) {
   const tripQuery = useQuery({
-    queryKey: qk.planner.trip(tripId),
-    queryFn: () => plannerProvider.getTripDetail(tripId),
+    queryKey: qk.planner.trip(tripId, departureAt),
+    queryFn: () => plannerProvider.getTripDetail(tripId, departureAt),
     enabled: tripId.length > 0,
   });
 

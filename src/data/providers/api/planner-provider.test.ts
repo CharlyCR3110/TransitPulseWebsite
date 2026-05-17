@@ -16,10 +16,38 @@ describe('api plannerProvider', () => {
     });
   });
 
+  it('searchTrips passes departureAt when provided', async () => {
+    const spy = vi.spyOn(apiClient, 'request').mockResolvedValue([]);
+    await plannerProvider.searchTrips({
+      from: 'A',
+      to: 'B',
+      sort: 'fastest',
+      departureAt: '2026-06-01T13:00:00Z',
+    });
+    expect(spy).toHaveBeenCalledWith('GET', '/planner/search', {
+      query: {
+        from: 'A',
+        to: 'B',
+        sort: 'fastest',
+        departureAt: '2026-06-01T13:00:00Z',
+      },
+    });
+  });
+
   it('getTripDetail URL-encodes the id', async () => {
     const spy = vi.spyOn(apiClient, 'request').mockResolvedValue({});
     await plannerProvider.getTripDetail('trip 1/x');
     expect(spy).toHaveBeenCalledWith('GET', '/planner/trips/trip%201%2Fx');
+  });
+
+  it('getTripDetail passes departureAt when provided', async () => {
+    const spy = vi.spyOn(apiClient, 'request').mockResolvedValue({});
+    await plannerProvider.getTripDetail('trip 1/x', '2026-06-01T13:00:00Z');
+    expect(spy).toHaveBeenCalledWith(
+      'GET',
+      '/planner/trips/trip%201%2Fx',
+      { query: { departureAt: '2026-06-01T13:00:00Z' } },
+    );
   });
 
   it('getTripDetail maps not_found to null', async () => {
