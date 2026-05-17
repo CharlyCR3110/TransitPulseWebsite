@@ -100,7 +100,7 @@ export function TripDetailScreen({ tripId, departureAt }: TripDetailScreenProps)
   return (
     <div className="screen screen-fade itinerary-screen">
       <AppBar
-        title={lang === 'es' ? 'Itinerario' : 'Itinerary'}
+        title={t('itinerary')}
         showBack
         trailing={
           <>
@@ -112,7 +112,7 @@ export function TripDetailScreen({ tripId, departureAt }: TripDetailScreenProps)
 
       <section className="itinerary-hero">
         <div>
-          <div className="itinerary-kicker">{lang === 'es' ? 'Itinerario' : 'Itinerary'}</div>
+          <div className="itinerary-kicker">{t('itinerary')}</div>
           <div className="itinerary-duration">{trip.minutes} {t('min')}</div>
           <div className="itinerary-window">{departureTime} - {arrivalTime}</div>
         </div>
@@ -120,8 +120,8 @@ export function TripDetailScreen({ tripId, departureAt }: TripDetailScreenProps)
       </section>
 
       <div className="itinerary-pager">
-        <button type="button" onClick={() => goToShift(-30)}><Icon name="back" size={16} />{lang === 'es' ? 'Antes' : 'Earlier'}</button>
-        <button type="button" onClick={() => goToShift(30)}>{lang === 'es' ? 'Después' : 'Later'}<Icon name="chevron" size={16} /></button>
+        <button type="button" onClick={() => goToShift(-30)}><Icon name="back" size={16} />{t('earlier')}</button>
+        <button type="button" onClick={() => goToShift(30)}>{t('later')}<Icon name="chevron" size={16} /></button>
       </div>
 
       <div className="itinerary-map">
@@ -131,7 +131,7 @@ export function TripDetailScreen({ tripId, departureAt }: TripDetailScreenProps)
       <div className="itinerary-list">
         <AnchorSection
           icon="pin"
-          title={lang === 'es' ? 'Salir desde' : 'Start from'}
+          title={t('start_from')}
           label={startLabel}
           meta={`${t('leaves')} ${departureTime}`}
         />
@@ -144,6 +144,7 @@ export function TripDetailScreen({ tripId, departureAt }: TripDetailScreenProps)
                 step={step}
                 lang={lang}
                 locale={locale}
+                t={t}
               />
             );
           }
@@ -165,7 +166,7 @@ export function TripDetailScreen({ tripId, departureAt }: TripDetailScreenProps)
           icon="pin"
           title={t('destination')}
           label={destinationLabel}
-          meta={`${t('arrive')} ${arrivalTime}`}
+          meta={`${t('arrive_at')} ${arrivalTime}`}
         />
       </div>
 
@@ -229,17 +230,16 @@ function SimpleSection({ icon, title, label, meta }: { icon: string; title: stri
   );
 }
 
-function WalkSection({ step, lang, locale }: { step: WalkStep; lang: 'es' | 'en'; locale: string }) {
-  const title = lang === 'es' ? 'Caminar a' : 'Walk to';
+function WalkSection({ step, lang, locale, t }: { step: WalkStep; lang: 'es' | 'en'; locale: string; t: (key: I18nKey) => string }) {
   const time = clock(step.startsAt, locale) ?? step.time;
   return (
     <section className="itinerary-section itinerary-section--walk">
       <div className="itinerary-section-icon"><Icon name="walk" size={18} /></div>
       <div className="itinerary-section-body">
-        <div className="itinerary-section-title">{title}</div>
+        <div className="itinerary-section-title">{t('walk_to_label')}</div>
         <div className="itinerary-section-label">{stepName(step, lang)}</div>
         <div className="itinerary-section-meta">
-          {meters(step.distanceMeters)} · {step.minutes} min · {time}
+          {meters(step.distanceMeters)} · {step.minutes} {t('min')} · {time}
         </div>
       </div>
     </section>
@@ -255,7 +255,7 @@ function BusSection({ step, lang, locale, t }: { step: BusStep; lang: 'es' | 'en
       <section className="itinerary-section itinerary-section--wait">
         <div className="itinerary-section-icon"><Icon name="clock" size={18} /></div>
         <div className="itinerary-section-body">
-          <div className="itinerary-section-title">{lang === 'es' ? 'Esperar' : 'Wait for'}</div>
+          <div className="itinerary-section-title">{t('wait_for')}</div>
           <div className="itinerary-route-head">
             <RouteBadge route={step.route} kind="bus" />
             <span>{busName(step, lang)}</span>
@@ -274,13 +274,13 @@ function BusSection({ step, lang, locale, t }: { step: BusStep; lang: 'es' | 'en
       <section className="itinerary-section itinerary-section--ride">
         <div className="itinerary-section-icon"><Icon name="bus" size={18} /></div>
         <div className="itinerary-section-body">
-          <div className="itinerary-section-title">{lang === 'es' ? 'Viajar' : 'Ride'}</div>
+          <div className="itinerary-section-title">{t('ride_label')}</div>
           <div className="itinerary-section-label">
-            {step.route} · {step.stops} {lang === 'es' ? 'paradas' : 'stops'} · {step.minutes} min
+            {step.route} · {step.stops} {t('stops_word')} · {step.minutes} {t('min')}
           </div>
           <div className="itinerary-ride-extra">
             <OccBars level={step.occ} t={t} />
-            <StatusChip status="ok" label={lang === 'es' ? 'A tiempo' : 'On time'} />
+            <StatusChip status="ok" label={t('on_time')} />
           </div>
           <div className="itinerary-stops">
             {(step.legStops ?? []).map((stop) => {
@@ -289,13 +289,13 @@ function BusSection({ step, lang, locale, t }: { step: BusStep; lang: 'es' | 'en
                 ? clock(new Date(new Date(step.startsAt).getTime() + stop.offsetFromBoardingMin * 60_000).toISOString(), locale)
                 : stop.isBoarding
                   ? clock(step.startsAt, locale)
-                  : `+${stop.offsetFromBoardingMin} min`;
+                  : `+${stop.offsetFromBoardingMin} ${t('min')}`;
               return (
                 <div key={`${step.route}-${stop.stopId}-${stop.sequence}`} className={`itinerary-stop ${stop.isBoarding || stop.isAlighting ? 'itinerary-stop--major' : ''}`}>
                   <span className="itinerary-stop-dot" />
                   <span className="itinerary-stop-name">{name}</span>
                   <span className="itinerary-stop-time">
-                    {stop.isBoarding ? (lang === 'es' ? 'Abordar' : 'Board') : stop.isAlighting ? (lang === 'es' ? 'Bajar' : 'Alight') : stopTime}
+                    {stop.isBoarding ? t('board') : stop.isAlighting ? t('alight') : stopTime}
                   </span>
                 </div>
               );
@@ -304,7 +304,7 @@ function BusSection({ step, lang, locale, t }: { step: BusStep; lang: 'es' | 'en
               <div className="itinerary-stop itinerary-stop--major">
                 <span className="itinerary-stop-dot" />
                 <span className="itinerary-stop-name">{boardName} - {alightName}</span>
-                <span className="itinerary-stop-time">{step.minutes} min</span>
+                <span className="itinerary-stop-time">{step.minutes} {t('min')}</span>
               </div>
             )}
           </div>
