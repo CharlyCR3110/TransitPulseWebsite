@@ -84,6 +84,10 @@ export const I18N = {
     stops_word: 'paradas',
     on_time: 'A tiempo',
     alight: 'Bajar',
+    use_my_location: 'Usar mi ubicación',
+    locating: 'Ubicando…',
+    gps_denied: 'Permiso de ubicación denegado',
+    gps_unavailable: 'Ubicación no disponible',
   },
   en: {
     home: 'Home', plan: 'Plan', alerts: 'Alerts', profile: 'Profile',
@@ -166,6 +170,10 @@ export const I18N = {
     stops_word: 'stops',
     on_time: 'On time',
     alight: 'Alight',
+    use_my_location: 'Use my location',
+    locating: 'Locating…',
+    gps_denied: 'Location permission denied',
+    gps_unavailable: 'Location unavailable',
   },
 } as const;
 

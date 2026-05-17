@@ -20,11 +20,33 @@ export function PlannerScreen({ initialFrom, initialTo }: PlannerScreenProps) {
   const [sort, setSort] = useState<'fastest' | 'cheapest' | 'fewest'>('fastest');
   const [from, setFrom] = useState(initialFrom ?? 'San Pedro · UCR');
   const [to, setTo] = useState(initialTo ?? 'Multiplaza');
+  const [locating, setLocating] = useState(false);
+  const [gpsError, setGpsError] = useState<I18nKey | null>(null);
 
   const { results: sorted, loading: searching, refresh } = usePlannerSearch(from, to, sort);
 
   const swap = () => { setFrom(to); setTo(from); };
   const runSearch = () => { refresh(); };
+
+  const useMyLocation = () => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setGpsError('gps_unavailable');
+      return;
+    }
+    setLocating(true);
+    setGpsError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setFrom(`${pos.coords.latitude.toFixed(6)},${pos.coords.longitude.toFixed(6)}`);
+        setLocating(false);
+      },
+      (err) => {
+        setLocating(false);
+        setGpsError(err.code === err.PERMISSION_DENIED ? 'gps_denied' : 'gps_unavailable');
+      },
+      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 30_000 },
+    );
+  };
 
   const sortTabs: { id: 'fastest' | 'cheapest' | 'fewest'; labelKey: I18nKey }[] = [
     { id: 'fastest', labelKey: 'fastest' },
@@ -40,7 +62,17 @@ export function PlannerScreen({ initialFrom, initialTo }: PlannerScreenProps) {
         <div className="planner-fields">
           <div className="planner-field">
             <span className="planner-dot planner-dot--from" />
-            <input className="planner-input" value={from} onChange={(e) => setFrom(e.target.value)} placeholder={t('current_location')} />
+            <input className="planner-input" value={locating ? t('locating') : from} onChange={(e) => setFrom(e.target.value)} placeholder={t('current_location')} disabled={locating} />
+            <button
+              type="button"
+              className="planner-gps"
+              onClick={useMyLocation}
+              disabled={locating}
+              aria-label={t('use_my_location')}
+              title={t('use_my_location')}
+            >
+              <Icon name="pin" size={16} />
+            </button>
             <span className="planner-line" />
           </div>
           <div className="planner-field">
@@ -49,6 +81,9 @@ export function PlannerScreen({ initialFrom, initialTo }: PlannerScreenProps) {
           </div>
           <button className="planner-swap" onClick={swap} aria-label="Swap"><Icon name="swap" size={16} /></button>
         </div>
+        {gpsError && (
+          <div className="planner-gps-error" role="status">{t(gpsError)}</div>
+        )}
       </div>
 
       <div style={{ padding: '8px 20px 14px' }}>
