@@ -14,12 +14,19 @@ interface PlannerScreenProps {
   initialTo?: string;
 }
 
+const SUGGESTED_DESTINATIONS = [
+  'San José Centro',
+  'Heredia',
+  'UNA',
+  'Multiplaza',
+];
+
 export function PlannerScreen({ initialFrom, initialTo }: PlannerScreenProps) {
   const { t } = useLang();
   const router = useRouter();
   const [sort, setSort] = useState<'fastest' | 'cheapest' | 'fewest'>('fastest');
-  const [from, setFrom] = useState(initialFrom ?? 'San Pedro · UCR');
-  const [to, setTo] = useState(initialTo ?? 'Multiplaza');
+  const [from, setFrom] = useState(initialFrom ?? '');
+  const [to, setTo] = useState(initialTo ?? '');
   const [locating, setLocating] = useState(false);
   const [gpsError, setGpsError] = useState<I18nKey | null>(null);
 
@@ -27,6 +34,9 @@ export function PlannerScreen({ initialFrom, initialTo }: PlannerScreenProps) {
 
   const swap = () => { setFrom(to); setTo(from); };
   const runSearch = () => { refresh(); };
+  const pickSuggestion = (suggestion: string) => { setTo(suggestion); };
+  const hasSearched = from.trim().length > 0 && to.trim().length > 0;
+  const showSuggestions = !to.trim();
 
   const useMyLocation = () => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
@@ -58,11 +68,13 @@ export function PlannerScreen({ initialFrom, initialTo }: PlannerScreenProps) {
     <div className="screen screen-fade">
       <AppBar title={t('plan_trip')} showBack />
 
+      <p className="planner-subtitle">{t('planner_subtitle')}</p>
+
       <div style={{ padding: '0 20px 12px', position: 'relative' }}>
         <div className="planner-fields">
           <div className="planner-field">
             <span className="planner-dot planner-dot--from" />
-            <input className="planner-input" value={locating ? t('locating') : from} onChange={(e) => setFrom(e.target.value)} placeholder={t('current_location')} disabled={locating} />
+            <input className="planner-input" value={locating ? t('locating') : from} onChange={(e) => setFrom(e.target.value)} placeholder={t('from_placeholder')} disabled={locating} />
             <button
               type="button"
               className="planner-gps"
@@ -77,7 +89,7 @@ export function PlannerScreen({ initialFrom, initialTo }: PlannerScreenProps) {
           </div>
           <div className="planner-field">
             <span className="planner-dot planner-dot--to" />
-            <input className="planner-input" value={to} onChange={(e) => setTo(e.target.value)} placeholder={t('destination')} />
+            <input className="planner-input" value={to} onChange={(e) => setTo(e.target.value)} placeholder={t('to_placeholder')} />
           </div>
           <button className="planner-swap" onClick={swap} aria-label="Swap"><Icon name="swap" size={16} /></button>
         </div>
@@ -85,6 +97,22 @@ export function PlannerScreen({ initialFrom, initialTo }: PlannerScreenProps) {
           <div className="planner-gps-error" role="status">{t(gpsError)}</div>
         )}
       </div>
+
+      {showSuggestions && (
+        <div className="planner-suggestions">
+          <span className="planner-suggestions-label">{t('try_these')}</span>
+          {SUGGESTED_DESTINATIONS.map((dest) => (
+            <button
+              key={dest}
+              type="button"
+              className="planner-suggestion-chip"
+              onClick={() => pickSuggestion(dest)}
+            >
+              {dest}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div style={{ padding: '8px 20px 14px' }}>
         <div className="sort-tabs">
@@ -100,6 +128,11 @@ export function PlannerScreen({ initialFrom, initialTo }: PlannerScreenProps) {
       <div style={{ padding: '0 20px' }} className="stack">
         {searching ? (
           <div className="empty">{t('searching')}</div>
+        ) : hasSearched && sorted.length === 0 ? (
+          <div className="planner-empty-results">
+            <div className="planner-empty-results-title">{t('empty_results_title')}</div>
+            <div className="planner-empty-results-hint">{t('empty_results_hint')}</div>
+          </div>
         ) : sorted.map((opt, i) => {
           const isBest = i === 0;
           const flagKey: I18nKey = sort === 'fastest' ? 'fastest' : sort === 'cheapest' ? 'cheapest' : 'fewest';

@@ -88,6 +88,12 @@ export const I18N = {
     locating: 'Ubicando…',
     gps_denied: 'Permiso de ubicación denegado',
     gps_unavailable: 'Ubicación no disponible',
+    planner_subtitle: 'Buscá tu próximo viaje. Tocá el pin para usar tu ubicación actual.',
+    from_placeholder: 'Ej. UCR, Heredia, o tocá el pin',
+    to_placeholder: 'Ej. San José Centro, Multiplaza, UNA',
+    try_these: 'Sugerencias',
+    empty_results_title: 'No encontramos opciones',
+    empty_results_hint: 'Probá con un destino más popular, o usá tu ubicación para resultados más precisos.',
   },
   en: {
     home: 'Home', plan: 'Plan', alerts: 'Alerts', profile: 'Profile',
@@ -174,6 +180,12 @@ export const I18N = {
     locating: 'Locating…',
     gps_denied: 'Location permission denied',
     gps_unavailable: 'Location unavailable',
+    planner_subtitle: 'Find your next trip. Tap the pin to use your current location.',
+    from_placeholder: 'e.g. UCR, Heredia, or tap the pin',
+    to_placeholder: 'e.g. Downtown San José, Multiplaza, UNA',
+    try_these: 'Suggestions',
+    empty_results_title: 'No options found',
+    empty_results_hint: 'Try a more popular destination, or use your location for better matches.',
   },
 } as const;
 
